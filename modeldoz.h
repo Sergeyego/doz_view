@@ -49,4 +49,17 @@ public:
     void refresh(QDate beg, QDate end, bool by_part);
 };
 
+class ModelCurrentBunk: public QSqlQueryModel
+{
+public:
+    ModelCurrentBunk(QObject *parent=0);
+    void refresh(QDateTime datetime);
+};
+
+class ModelLoadBunk : public DbTableModel
+{
+public:
+    ModelLoadBunk(QObject *parent=0);
+    void refresh(QDate beg, QDate end);
+};
 #endif // MODELDOZ_H

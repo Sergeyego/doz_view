@@ -39,7 +39,8 @@ SOURCES += \
     olap/cubic.cpp \
     olap/olapmodel.cpp \
     olap/tableview.cpp \
-    dialogreport.cpp
+    dialogreport.cpp \
+    dialogbunk.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -56,7 +57,8 @@ HEADERS += \
     olap/cubic.h \
     olap/olapmodel.h \
     olap/tableview.h \
-    dialogreport.h
+    dialogreport.h \
+    dialogbunk.h
 
 FORMS += \
         mainwindow.ui \
@@ -64,7 +66,8 @@ FORMS += \
     dialognew.ui \
     olap/axiswidget.ui \
     olap/cubewidget.ui \
-    dialogreport.ui
+    dialogreport.ui \
+    dialogbunk.ui
 
 DISTFILES +=
 

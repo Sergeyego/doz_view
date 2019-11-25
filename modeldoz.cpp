@@ -214,6 +214,55 @@ void ModelReport::refresh(QDate beg, QDate end, bool by_part)
         setHeaderData(2,Qt::Horizontal,QString("Рецепт., кг"));
         setHeaderData(3,Qt::Horizontal,QString("Фактич., кг"));
     } else {
+        clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
     }
+}
+
+ModelCurrentBunk::ModelCurrentBunk(QObject *parent) : QSqlQueryModel(parent)
+{
+
+}
+
+void ModelCurrentBunk::refresh(QDateTime datetime)
+{
+    QSqlQuery query;
+    query.prepare("select bk.numer, t.nam, t.parti from bunk as bk "
+                  "left join "
+                  "(select bc.id_bunk, m.nam, bc.parti from bunk_comp as bc "
+                  "inner join bunk as b on b.id=bc.id_bunk "
+                  "inner join matr as m on m.id=bc.id_comp "
+                  "where bc.dtm=(select max(dtm) from bunk_comp as bcc where bcc.dtm <= :dt and bcc.id_bunk=bc.id_bunk) "
+                  "group by bc.id_bunk, m.nam, bc.parti) as t on t.id_bunk=bk.id "
+                  "where bk.is_tiny=0 "
+                  "order by bk.nomer");
+    query.bindValue(":dt",datetime);
+    if (query.exec()){
+        setQuery(query);
+        setHeaderData(0,Qt::Horizontal,QString("Бункер"));
+        setHeaderData(1,Qt::Horizontal,QString("Компонент"));
+        setHeaderData(2,Qt::Horizontal,QString("Партия"));
+    } else {
+        clear();
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
+}
+
+ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
+{
+    addColumn("id",QString::fromUtf8("id"),true,TYPE_INT);
+    addColumn("dat",QString::fromUtf8("Дата"),false,TYPE_DATE);
+    addColumn("tm",QString::fromUtf8("Время"),false,TYPE_VARIANT);
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),true,TYPE_STRING,NULL,Rels::instance()->relBunk);
+    addColumn("id_comp",QString::fromUtf8("Компонент"),true,TYPE_STRING,NULL,Rels::instance()->relComp);
+    addColumn("parti",QString::fromUtf8("Партия"),false,TYPE_STRING);
+    setSort("bunk_comp.dat, bunk_comp.tm");
+
+    setDefaultValue(2,QTime::currentTime());
+}
+
+void ModelLoadBunk::refresh(QDate beg, QDate end)
+{
+    setFilter("bunk_comp.dat between '"+beg.toString("yyyy-MM-dd")+"' and '"+end.toString("yyyy-MM-dd")+"'");
+    select();
 }

@@ -17,6 +17,9 @@ Rels::Rels(QObject *parent) : QObject(parent)
 
     relRcp->proxyModel()->setFilterKeyColumn(2);
     relRcp->proxyModel()->setFilterFixedString("1");
+
+    relBunk->proxyModel()->setFilterKeyColumn(2);
+    relBunk->proxyModel()->setFilterFixedString("");
 }
 
 void Rels::refresh()

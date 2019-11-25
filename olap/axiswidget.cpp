@@ -6,8 +6,8 @@ AxisWidget::AxisWidget(QStringList axis, QWidget *parent) :
     ui(new Ui::AxisWidget)
 {
     ui->setupUi(this);
-    ui->cmdDown->setIcon(this->style()->standardIcon(QStyle::SP_ArrowUp));
-    ui->cmdDown->setIcon(this->style()->standardIcon(QStyle::SP_ArrowDown));
+    ui->cmdUp->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowUp)));
+    ui->cmdDown->setIcon(QIcon(QApplication::style()->standardIcon(QStyle::SP_ArrowDown)));
 
     for (unsigned int i=0; i<axis.size(); ++i) {
         QListWidgetItem *item = new QListWidgetItem();

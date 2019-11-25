@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>998</width>
-    <height>698</height>
+    <width>996</width>
+    <height>696</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -164,7 +164,7 @@
         <enum>QAbstractItemView::SelectRows</enum>
        </property>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
          <widget class="DbViewer" name="tableViewData">
@@ -313,23 +313,6 @@
                    </item>
                   </layout>
                  </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_3">
-                 <item>
-                  <spacer name="horizontalSpacer_4">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
-                 </item>
                  <item>
                   <widget class="QToolButton" name="toolButtonReport">
                    <property name="sizePolicy">
@@ -351,19 +334,6 @@
                     <enum>Qt::ToolButtonTextBesideIcon</enum>
                    </property>
                   </widget>
-                 </item>
-                 <item>
-                  <spacer name="horizontalSpacer_3">
-                   <property name="orientation">
-                    <enum>Qt::Horizontal</enum>
-                   </property>
-                   <property name="sizeHint" stdset="0">
-                    <size>
-                     <width>40</width>
-                     <height>20</height>
-                    </size>
-                   </property>
-                  </spacer>
                  </item>
                 </layout>
                </item>
@@ -411,7 +381,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>998</width>
+     <width>996</width>
      <height>24</height>
     </rect>
    </property>
@@ -422,7 +392,6 @@
     <addaction name="actionDel"/>
     <addaction name="actionConfirm"/>
     <addaction name="actionNew"/>
-    <addaction name="actionReport"/>
     <addaction name="actionUpdate"/>
    </widget>
    <widget class="QMenu" name="menu_2">
@@ -431,7 +400,15 @@
     </property>
     <addaction name="actionLoad"/>
    </widget>
+   <widget class="QMenu" name="menu_3">
+    <property name="title">
+     <string>Отчеты</string>
+    </property>
+    <addaction name="actionReport"/>
+    <addaction name="actionCube"/>
+   </widget>
    <addaction name="menu"/>
+   <addaction name="menu_3"/>
    <addaction name="menu_2"/>
   </widget>
   <action name="actionDel">
@@ -484,6 +461,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+R</string>
+   </property>
+  </action>
+  <action name="actionCube">
+   <property name="text">
+    <string>Анализ расхода компонентов</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
  </widget>

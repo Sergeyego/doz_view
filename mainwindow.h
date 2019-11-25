@@ -7,6 +7,8 @@
 #include "rels.h"
 #include "dialognew.h"
 #include "dialogreport.h"
+#include "dialogbunk.h"
+#include "olap/cubewidget.h"
 
 namespace Ui {
 class MainWindow;
@@ -28,6 +30,7 @@ private:
     QButtonGroup *groupReport;
     ModelDoz *modelDoz;
     ModelDozData *modelDozData;
+    CubeWidget *cubeDoz;
 
 private slots:
     void updDoz();
@@ -37,6 +40,8 @@ private slots:
     void confirmDoz();
     void newDoz();
     void reportDoz();
+    void loadBunk();
+    void olapDoz();
 };
 
 #endif // MAINWINDOW_H
