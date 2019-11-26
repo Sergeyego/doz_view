@@ -7,7 +7,7 @@ DialogReport::DialogReport(QDate begDate, QDate endDate, bool byPart, QWidget *p
 {
     ui->setupUi(this);
     ui->pushButtonSave->setIcon(this->style()->standardIcon(QStyle::SP_DialogSaveButton));
-    header=QString("Расход помпонентов на линии дозировки с %1 по %2 ").arg(begDate.toString("dd.MM.yy")).arg(endDate.toString("dd.MM.yy"));
+    header=QString("Расход компонентов на линии дозировки с %1 по %2 ").arg(begDate.toString("dd.MM.yy")).arg(endDate.toString("dd.MM.yy"));
     header+=byPart? QString("по партиям") : QString("без партий");
     ui->label->setText(header);
 

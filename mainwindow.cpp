@@ -11,28 +11,29 @@ MainWindow::MainWindow(QWidget *parent) :
     QStringList axes;
     axes.push_back(tr("Рецептура"));
     axes.push_back(tr("Компонент"));
-    axes.push_back(tr("Партия"));
+    axes.push_back(tr("Партия дозировки"));
+    axes.push_back(tr("Партия электродов"));
     axes.push_back(tr("Марка"));
     axes.push_back(tr("Диаметр"));
     axes.push_back(tr("Группа"));
     axes.push_back(tr("Год"));
     axes.push_back(tr("Месяц"));
     axes.push_back(tr("День"));
-    QString query="select n.nam, m.nam, p.n_s||'-'||date_part('year',p.dat_part), e.marka, p.diam, t.nam, "
-            "substr(cast(p.dat_part as char(32)),1,4) as yr, "
-            "substr(cast(p.dat_part as char(32)),1,7) as mn, "
-            "substr(cast(p.dat_part as char(32)),1,10) as dy, "
-            "s.kvo_fact*pm.kvo/d.kvo_tot as kvo "
-            "from dosage_spnd as s "
-            "inner join dosage as d on d.id=s.id_dos "
-            "inner join matr as m on m.id=s.id_comp "
-            "left join parti_mix as pm on pm.id_dos=d.id "
-            "left join parti as p on p.id=pm.id_part "
-            "left join elrtr as e on e.id=p.id_el "
-            "left join el_types as t on t.id=e.id_vid "
+    QString query="select n.nam, mt.nam, d.parti, p.n_s||'-'||date_part('year',p.dat_part), e.marka, p.diam, t.nam, "
+            "substr(cast(d.dat as char(32)),1,4) as yr, "
+            "substr(cast(d.dat as char(32)),1,7) as mn, "
+            "substr(cast(d.dat as char(32)),1,10) as dy, "
+            "ds.kvo_fact*m.kvo/d.kvo_tot as kvo "
+            "from parti_mix as m "
+            "inner join dosage as d on d.id=m.id_dos "
+            "inner join dosage_spnd as ds on ds.id_dos=d.id "
+            "inner join matr as mt on mt.id=ds.id_comp "
+            "inner join parti as p on p.id=m.id_part "
+            "inner join elrtr as e on e.id=p.id_el "
+            "inner join el_types as t on t.id=e.id_vid "
             "inner join rcp_nam as n on n.id=d.id_rcp "
             "where d.dat between :d1 and :d2";
-    cubeDoz = new CubeWidget(QString("Расход компонентов, кг"),axes,query,2);
+    cubeDoz = new CubeWidget(QString("Расход компонентов на партии электродов, кг"),axes,query,2);
 
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().day()+1));
     ui->dateEditEnd->setDate(QDate::currentDate());
@@ -82,6 +83,8 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->toolButtonReport->setDefaultAction(ui->actionReport);
 
     ui->actionLoad->setIcon(this->style()->standardIcon(QStyle::SP_CommandLink));
+
+    ui->actionCube->setIcon(this->style()->standardIcon(QStyle::SP_ComputerIcon));
 
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),this,SLOT(updDoz()));
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),Rels::instance(),SLOT(refresh()));
