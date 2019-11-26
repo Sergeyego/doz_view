@@ -47,6 +47,7 @@ public:
     ModelReport(QObject *parent=0);
     QVariant data(const QModelIndex &item, int role) const;
     void refresh(QDate beg, QDate end, bool by_part);
+    int rowCount(const QModelIndex &parent) const;
 };
 
 class ModelCurrentBunk: public QSqlQueryModel

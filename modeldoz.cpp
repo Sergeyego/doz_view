@@ -176,17 +176,39 @@ ModelReport::ModelReport(QObject *parent) : QSqlQueryModel(parent)
 
 QVariant ModelReport::data(const QModelIndex &item, int role) const
 {
-    if (role==Qt::DisplayRole){
-        if (item.column()==2 || item.column()==3){
-            return QLocale().toString(QSqlQueryModel::data(item,role).toDouble(),'f',2);
-        } else {
-            return QSqlQueryModel::data(item,role);
+    if (item.row()==QSqlQueryModel::rowCount()){
+        if (role==Qt::EditRole || role==Qt::DisplayRole){
+            if (item.column()==0){
+                return QString("Итого");
+            } else if (item.column()==2 || item.column()==3){
+                double sum=0.0;
+                for (int i=0; i<QSqlQueryModel::rowCount(); i++){
+                    QModelIndex cs=this->index(i,item.column());
+                    sum+=(QSqlQueryModel::data(cs).toDouble());
+                }
+                if (role==Qt::EditRole){
+                    return sum;
+                } else if (role==Qt::DisplayRole){
+                    return QLocale().toString(sum,'f',2);
+                } else if (role==Qt::TextAlignmentRole){
+                    return int(Qt::AlignRight | Qt::AlignVCenter);
+                }
+            }
         }
-    } else if (role==Qt::TextAlignmentRole){
-        if (item.column()==2 || item.column()==3){
-            return int(Qt::AlignRight | Qt::AlignVCenter);
-        } else {
-            return QSqlQueryModel::data(item,role);
+        return QVariant();
+    } else {
+        if (role==Qt::DisplayRole){
+            if (item.column()==2 || item.column()==3){
+                return QLocale().toString(QSqlQueryModel::data(item,role).toDouble(),'f',2);
+            } else {
+                return QSqlQueryModel::data(item,role);
+            }
+        } else if (role==Qt::TextAlignmentRole){
+            if (item.column()==2 || item.column()==3){
+                return int(Qt::AlignRight | Qt::AlignVCenter);
+            } else {
+                return QSqlQueryModel::data(item,role);
+            }
         }
     }
     return QSqlQueryModel::data(item,role);
@@ -217,6 +239,11 @@ void ModelReport::refresh(QDate beg, QDate end, bool by_part)
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
     }
+}
+
+int ModelReport::rowCount(const QModelIndex &parent) const
+{
+    return QSqlQueryModel::rowCount(parent)+1;
 }
 
 ModelCurrentBunk::ModelCurrentBunk(QObject *parent) : QSqlQueryModel(parent)
