@@ -10,6 +10,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->pushButtonCurrentTime->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
     ui->pushButtonSave->setIcon(this->style()->standardIcon(QStyle::SP_DialogSaveButton));
     ui->pushButtonUpdCurrent->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
+    ui->pushButtonPart->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
 
     modelCurrentBunk = new ModelCurrentBunk(this);
     ui->tableViewCurrent->setModel(modelCurrentBunk);
@@ -32,6 +33,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     connect(ui->pushButtonUpdCurrent,SIGNAL(clicked(bool)),this,SLOT(updCurrent()));
     connect(ui->pushButtonSave,SIGNAL(clicked(bool)),this,SLOT(save()));
     connect(ui->pushButtonUpdLoad,SIGNAL(clicked(bool)),this,SLOT(updLoad()));
+    connect(ui->pushButtonPart,SIGNAL(clicked(bool)),this,SLOT(calcPart()));
 }
 
 DialogBunk::~DialogBunk()
@@ -59,4 +61,10 @@ void DialogBunk::save()
 void DialogBunk::updLoad()
 {
     modelLoadBunk->refresh(ui->dateEditBeg->date(), ui->dateEditEnd->date());
+}
+
+void DialogBunk::calcPart()
+{
+    QString text=QString("Будут обновлены партии на дозировках с %1 по %2.").arg(ui->dateEditBeg->date().toString("dd.MM.yy")).arg(ui->dateEditEnd->date().toString("dd.MM.yy"));
+    QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
 }

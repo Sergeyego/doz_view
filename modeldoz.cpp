@@ -171,7 +171,8 @@ bool ModelDozNew::writeDozData(int id_doz)
 
 ModelReport::ModelReport(QObject *parent) : QSqlQueryModel(parent)
 {
-
+    sumrcp=0.0;
+    sumfact=0.0;
 }
 
 QVariant ModelReport::data(const QModelIndex &item, int role) const
@@ -181,18 +182,18 @@ QVariant ModelReport::data(const QModelIndex &item, int role) const
             if (item.column()==0){
                 return QString("Итого");
             } else if (item.column()==2 || item.column()==3){
-                double sum=0.0;
-                for (int i=0; i<QSqlQueryModel::rowCount(); i++){
-                    QModelIndex cs=this->index(i,item.column());
-                    sum+=(QSqlQueryModel::data(cs).toDouble());
-                }
+                double sum = (item.column()==2) ? sumrcp : sumfact;
                 if (role==Qt::EditRole){
                     return sum;
                 } else if (role==Qt::DisplayRole){
                     return QLocale().toString(sum,'f',2);
-                } else if (role==Qt::TextAlignmentRole){
-                    return int(Qt::AlignRight | Qt::AlignVCenter);
                 }
+            }
+        } else if (role==Qt::TextAlignmentRole){
+            if (item.column()==2 || item.column()==3){
+                return int(Qt::AlignRight | Qt::AlignVCenter);
+            } else {
+                return int(Qt::AlignLeft | Qt::AlignVCenter);
             }
         }
         return QVariant();
@@ -229,12 +230,20 @@ void ModelReport::refresh(QDate beg, QDate end, bool by_part)
     query.prepare(q);
     query.bindValue(":d1",beg);
     query.bindValue(":d2",end);
+    sumrcp=0.0;
+    sumfact=0.0;
     if (query.exec()){
         setQuery(query);
         setHeaderData(0,Qt::Horizontal,QString("Компонент"));
         setHeaderData(1,Qt::Horizontal,QString("Партия"));
         setHeaderData(2,Qt::Horizontal,QString("Рецепт., кг"));
         setHeaderData(3,Qt::Horizontal,QString("Фактич., кг"));
+        for (int i=0; i<QSqlQueryModel::rowCount(); i++){
+            QModelIndex ircp=this->index(i,2);
+            QModelIndex ifact=this->index(i,3);
+            sumrcp+=(QSqlQueryModel::data(ircp).toDouble());
+            sumfact+=(QSqlQueryModel::data(ifact).toDouble());
+        }
     } else {
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
@@ -280,8 +289,8 @@ ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
     addColumn("id",QString::fromUtf8("id"),true,TYPE_INT);
     addColumn("dat",QString::fromUtf8("Дата"),false,TYPE_DATE);
     addColumn("tm",QString::fromUtf8("Время"),false,TYPE_VARIANT);
-    addColumn("id_bunk",QString::fromUtf8("Бункер"),true,TYPE_STRING,NULL,Rels::instance()->relBunk);
-    addColumn("id_comp",QString::fromUtf8("Компонент"),true,TYPE_STRING,NULL,Rels::instance()->relComp);
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),false,TYPE_STRING,NULL,Rels::instance()->relBunk);
+    addColumn("id_comp",QString::fromUtf8("Компонент"),false,TYPE_STRING,NULL,Rels::instance()->relComp);
     addColumn("parti",QString::fromUtf8("Партия"),false,TYPE_STRING);
     setSort("bunk_comp.dat, bunk_comp.tm");
 

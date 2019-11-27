@@ -14,7 +14,7 @@ public:
     DbRelation *relBunk;
 
 protected:
-    explicit Rels(QObject *parent = nullptr);
+    explicit Rels(QObject *parent = 0);
 
 private:
     static Rels *rels_instance;

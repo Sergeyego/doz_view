@@ -48,6 +48,9 @@ public:
     QVariant data(const QModelIndex &item, int role) const;
     void refresh(QDate beg, QDate end, bool by_part);
     int rowCount(const QModelIndex &parent) const;
+private:
+    double sumrcp;
+    double sumfact;
 };
 
 class ModelCurrentBunk: public QSqlQueryModel

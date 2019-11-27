@@ -26,6 +26,7 @@ private slots:
     void updCurrentTime();
     void save();
     void updLoad();
+    void calcPart();
 };
 
 #endif // DIALOGBUNK_H

@@ -181,10 +181,8 @@ void MainWindow::reportDoz()
 
 void MainWindow::loadBunk()
 {
-    Rels::instance()->relBunk->proxyModel()->setFilterFixedString("0");
     DialogBunk d;
     d.exec();
-    Rels::instance()->relBunk->proxyModel()->setFilterFixedString("");
 }
 
 void MainWindow::olapDoz()
