@@ -66,5 +66,8 @@ void DialogBunk::updLoad()
 void DialogBunk::calcPart()
 {
     QString text=QString("Будут обновлены партии на дозировках с %1 по %2.").arg(ui->dateEditBeg->date().toString("dd.MM.yy")).arg(ui->dateEditEnd->date().toString("dd.MM.yy"));
-    QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
+    int q = QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
+    if (q==QMessageBox::Ok){
+        modelLoadBunk->updatePart(ui->dateEditBeg->date(), ui->dateEditEnd->date());
+    }
 }

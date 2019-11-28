@@ -7,6 +7,9 @@
 #include <xlslib.h>
 #include <QDir>
 #include <QFileDialog>
+#include <QSettings>
+#include <QApplication>
+#include <QDebug>
 
 using namespace xlslib_core;
 

@@ -14,8 +14,9 @@ class DialogReport : public QDialog
     Q_OBJECT
 
 public:
-    explicit DialogReport(QDate begDate, QDate endDate, bool byPart, QWidget *parent = 0);
+    explicit DialogReport(QWidget *parent = 0);
     ~DialogReport();
+    void refresh(QDate begDate, QDate endDate, bool byPart);
 
 private:
     Ui::DialogReport *ui;

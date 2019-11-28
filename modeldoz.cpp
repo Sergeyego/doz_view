@@ -2,13 +2,13 @@
 
 ModelDoz::ModelDoz(QObject *parent) : DbTableModel("dosage",parent)
 {
-    addColumn("id",QString::fromUtf8("id"),true,TYPE_INT);
-    addColumn("dat",QString::fromUtf8("Дата"),false,TYPE_DATE);
-    addColumn("tm",QString::fromUtf8("Время"),false,TYPE_VARIANT);
-    addColumn("id_rcp",QString::fromUtf8("Рецептура"),false,TYPE_STRING,NULL,Rels::instance()->relRcp);
-    addColumn("kvo_tot",QString::fromUtf8("К-во, кг"),false,TYPE_DOUBLE,new QDoubleValidator(0,1000000,1,this));
-    addColumn("result",QString::fromUtf8("OK"),false,TYPE_INTBOOL);
-    addColumn("parti",QString::fromUtf8("Партия"),false,TYPE_STRING);
+    addColumn("id",QString::fromUtf8("id"),TYPE_INT);
+    addColumn("dat",QString::fromUtf8("Дата"),TYPE_DATE);
+    addColumn("tm",QString::fromUtf8("Время"),TYPE_VARIANT);
+    addColumn("id_rcp",QString::fromUtf8("Рецептура"),TYPE_STRING,NULL,Rels::instance()->relRcp);
+    addColumn("kvo_tot",QString::fromUtf8("К-во, кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,1,this));
+    addColumn("result",QString::fromUtf8("OK"),TYPE_INTBOOL);
+    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
     setSuffix("inner join rcp_nam on rcp_nam.id = dosage.id_rcp");
 }
 
@@ -61,13 +61,13 @@ bool ModelDoz::deleteDb(int row)
 
 ModelDozData::ModelDozData(QObject *parent): DbTableModel("dosage_spnd",parent)
 {
-    addColumn("id_dos",QString::fromUtf8("id_dos"),true,TYPE_INT);
-    addColumn("id_comp",QString::fromUtf8("Компонент"),true,TYPE_STRING,NULL,Rels::instance()->relComp);
-    addColumn("id_bunk",QString::fromUtf8("Бункер"),true,TYPE_STRING,NULL,Rels::instance()->relBunk);
-    addColumn("parti",QString::fromUtf8("Партия"),false,TYPE_STRING);
-    addColumn("kvo_comp",QString::fromUtf8("Рецепт., кг"),false,TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
-    addColumn("kvo_fact",QString::fromUtf8("Факт., кг"),false,TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
-    addColumn("id_rcp",QString::fromUtf8("Рецепт. отходов"),false,TYPE_STRING,NULL,Rels::instance()->relRcp);
+    addColumn("id_dos",QString::fromUtf8("id_dos"),TYPE_INT);
+    addColumn("id_comp",QString::fromUtf8("Компонент"),TYPE_STRING,NULL,Rels::instance()->relComp);
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),TYPE_STRING,NULL,Rels::instance()->relBunk);
+    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
+    addColumn("kvo_comp",QString::fromUtf8("Рецепт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
+    addColumn("kvo_fact",QString::fromUtf8("Факт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
+    addColumn("id_rcp",QString::fromUtf8("Рецепт. отходов"),TYPE_STRING,NULL,Rels::instance()->relRcp);
     setSuffix("inner join matr on matr.id = dosage_spnd.id_comp");
     setSort("matr.nam");
 }
@@ -286,12 +286,12 @@ void ModelCurrentBunk::refresh(QDateTime datetime)
 
 ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
 {
-    addColumn("id",QString::fromUtf8("id"),true,TYPE_INT);
-    addColumn("dat",QString::fromUtf8("Дата"),false,TYPE_DATE);
-    addColumn("tm",QString::fromUtf8("Время"),false,TYPE_VARIANT);
-    addColumn("id_bunk",QString::fromUtf8("Бункер"),false,TYPE_STRING,NULL,Rels::instance()->relBunk);
-    addColumn("id_comp",QString::fromUtf8("Компонент"),false,TYPE_STRING,NULL,Rels::instance()->relComp);
-    addColumn("parti",QString::fromUtf8("Партия"),false,TYPE_STRING);
+    addColumn("id",QString::fromUtf8("id"),TYPE_INT);
+    addColumn("dat",QString::fromUtf8("Дата"),TYPE_DATE);
+    addColumn("tm",QString::fromUtf8("Время"),TYPE_VARIANT);
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),TYPE_STRING,NULL,Rels::instance()->relBunk);
+    addColumn("id_comp",QString::fromUtf8("Компонент"),TYPE_STRING,NULL,Rels::instance()->relComp);
+    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
     setSort("bunk_comp.dat, bunk_comp.tm");
 
     setDefaultValue(2,QTime::currentTime());
@@ -301,4 +301,19 @@ void ModelLoadBunk::refresh(QDate beg, QDate end)
 {
     setFilter("bunk_comp.dat between '"+beg.toString("yyyy-MM-dd")+"' and '"+end.toString("yyyy-MM-dd")+"'");
     select();
+}
+
+bool ModelLoadBunk::updatePart(QDate beg, QDate end)
+{
+    QSqlQuery query;
+    query.prepare("update dosage_spnd as ds "
+                  "set parti=calc_doz_parti(ds.id_comp,(select d.dat+d.tm from dosage as d where d.id=ds.id_dos)) "
+                  "where (select d.dat from dosage as d where d.id=ds.id_dos) between :d1 and :d2");
+    query.bindValue(":d1",beg);
+    query.bindValue(":d2",end);
+    bool ok=query.exec();
+    if (!ok){
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
+    return ok;
 }

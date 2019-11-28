@@ -65,5 +65,6 @@ class ModelLoadBunk : public DbTableModel
 public:
     ModelLoadBunk(QObject *parent=0);
     void refresh(QDate beg, QDate end);
+    bool updatePart(QDate beg, QDate end);
 };
 #endif // MODELDOZ_H

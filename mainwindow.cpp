@@ -35,6 +35,10 @@ MainWindow::MainWindow(QWidget *parent) :
             "where d.dat between :d1 and :d2";
     cubeDoz = new CubeWidget(QString("Расход компонентов на партии электродов, кг"),axes,query,2);
 
+    dialogReport = new DialogReport(this);
+
+    dialogBunk = new DialogBunk(this);
+
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().day()+1));
     ui->dateEditEnd->setDate(QDate::currentDate());
 
@@ -92,7 +96,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionConfirm,SIGNAL(triggered(bool)),this,SLOT(confirmDoz()));
     connect(ui->actionNew,SIGNAL(triggered(bool)),this,SLOT(newDoz()));
     connect(ui->actionReport,SIGNAL(triggered(bool)),this,SLOT(reportDoz()));
-    connect(ui->actionLoad,SIGNAL(triggered(bool)),this,SLOT(loadBunk()));
+    connect(ui->actionLoad,SIGNAL(triggered(bool)),dialogBunk,SLOT(show()));
     connect(ui->actionCube,SIGNAL(triggered(bool)),cubeDoz,SLOT(show()));
 
     connect(ui->tableViewDoz->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(updDozData(QModelIndex)));
@@ -108,7 +112,7 @@ MainWindow::~MainWindow()
 
 void MainWindow::loadSettings()
 {
-    QSettings settings("szsm", "doz_view");
+    QSettings settings("szsm", QApplication::applicationName());
     this->restoreGeometry(settings.value("main_geometry").toByteArray());
     this->restoreState(settings.value("main_state").toByteArray());
     this->ui->splitter->restoreState(settings.value("main_splitter_width").toByteArray());
@@ -116,7 +120,7 @@ void MainWindow::loadSettings()
 
 void MainWindow::saveSettings()
 {
-    QSettings settings("szsm", "doz_view");
+    QSettings settings("szsm", QApplication::applicationName());
     settings.setValue("main_state", this->saveState());
     settings.setValue("main_geometry", this->saveGeometry());
     settings.setValue("main_splitter_width",ui->splitter->saveState());
@@ -175,42 +179,7 @@ void MainWindow::newDoz()
 
 void MainWindow::reportDoz()
 {
-    DialogReport d(ui->dateEditBeg->date(),ui->dateEditEnd->date(),ui->radioButtonPart->isChecked());
-    d.exec();
+    dialogReport->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),ui->radioButtonPart->isChecked());
+    dialogReport->show();
 }
 
-void MainWindow::loadBunk()
-{
-    DialogBunk d;
-    d.exec();
-}
-
-void MainWindow::olapDoz()
-{
-    QStringList axesStock;
-    axesStock.push_back(tr("Источник"));
-    axesStock.push_back(tr("Тип поступления"));
-    axesStock.push_back(tr("Марка"));
-    axesStock.push_back(tr("Диаметр"));
-    axesStock.push_back(tr("Катушка"));
-    axesStock.push_back(tr("Партия"));
-    axesStock.push_back(tr("Год"));
-    axesStock.push_back(tr("Месяц"));
-    axesStock.push_back(tr("День"));
-    QString queryStock="select s.nam, wt.nam, pr.nam, d.sdim, k.short, m.n_s||'-'||date_part('year',m.dat), "
-                       "substr(cast(wb.dat as char(32)),1,4) as yr, "
-                       "substr(cast(wb.dat as char(32)),1,7) as mn, "
-                       "substr(cast(wb.dat as char(32)),1,10) as dy, w.m_netto "
-                       "from wire_warehouse w "
-                       "inner join wire_whs_waybill wb on w.id_waybill=wb.id "
-                       "inner join wire_way_bill_type wt on wt.id=wb.id_type "
-                       "inner join wire_parti p on w.id_wparti=p.id "
-                       "inner join wire_parti_m m on p.id_m=m.id "
-                       "inner join provol pr on pr.id=m.id_provol "
-                       "inner join diam d on d.id=m.id_diam "
-                       "inner join wire_pack_kind k on p.id_pack=k.id "
-                       "inner join wire_source s on m.id_source=s.id "
-                       "where wb.dat between :d1 and :d2 and wt.koef=1 ";
-    CubeWidget *pDoz = new CubeWidget(QString("Поступление проволоки на склад"),axesStock,queryStock,2);
-    pDoz->show();
-}

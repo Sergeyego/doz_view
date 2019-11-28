@@ -119,8 +119,8 @@ void TableView::save(QString fnam)
                 }
             }
 
-        QDir dir(QDir::homePath()+"/provreport");
-        if (!dir.exists()) dir.mkdir(dir.path());
+        QSettings settings("szsm", QApplication::applicationName());
+        QDir dir(settings.value("savePath",QDir::homePath()).toString());
         QString filename = QFileDialog::getSaveFileName(this,tr("Сохранить документ"),
                                                         dir.path()+"/"+fnam+".xls",
                                                         tr("Documents (*.xls)") );
@@ -129,6 +129,8 @@ void TableView::save(QString fnam)
             if (file.exists()) file.remove();
             std::string fil(filename.toLocal8Bit());
             wb.Dump(fil);
+            QFileInfo info(file);
+            settings.setValue("savePath",info.path());
         }
     }
 }

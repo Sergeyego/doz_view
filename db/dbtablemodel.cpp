@@ -7,6 +7,7 @@ DbTableModel::DbTableModel(QString table, QObject *parent) :
     modelData = new MData(this);
     editor = new DataEditor(modelData,this);
     block=false;
+    updatePk();
 }
 
 Qt::ItemFlags DbTableModel::flags(const QModelIndex &index) const
@@ -82,12 +83,12 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
     return value;
 }
 
-int DbTableModel::rowCount(const QModelIndex &parent) const
+int DbTableModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return modelData->rowCount();
 }
 
-int DbTableModel::columnCount(const QModelIndex &parent) const
+int DbTableModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return modelData->columnCount();
 }
@@ -114,12 +115,11 @@ QVariant DbTableModel::headerData(int section, Qt::Orientation orientation, int 
     return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-bool DbTableModel::addColumn(QString name, QString display, bool isPk, int type, QValidator *validator, DbRelation *relation)
+bool DbTableModel::addColumn(QString name, QString display, int type, QValidator *validator, DbRelation *relation)
 {
     col tmpColumn;
     tmpColumn.name=name;
     tmpColumn.display=display;
-    tmpColumn.isPk=isPk;
     tmpColumn.type=type;
     tmpColumn.validator=validator;
     tmpColumn.data.resize(rowCount());
@@ -148,7 +148,7 @@ bool DbTableModel::addColumn(QString name, QString display, bool isPk, int type,
     return true;
 }
 
-bool DbTableModel::removeRow(int row, const QModelIndex &parent)
+bool DbTableModel::removeRow(int row, const QModelIndex& parent)
 {
     escAdd();
     if (!rowCount() || row<0 || row>=rowCount() || (editor->isAdd() && rowCount()==1)) return false;
@@ -231,7 +231,7 @@ bool DbTableModel::submitRow()
     return !(editor->isAdd() || editor->isEdt());
 }
 
-bool DbTableModel::insertRow(int row, const QModelIndex &parent)
+bool DbTableModel::insertRow(int row, const QModelIndex& /*parent*/)
 {
     if (block) return false;
     bool ok=false;
@@ -278,14 +278,11 @@ bool DbTableModel::insertDb()
 
     qu="INSERT INTO "+tableName+" (";
     for (int i=0; i<modelData->columnCount(); i++){
-        //if (!modelData->column(i)->isAutoVal) qu+=(modelData->column(i)->name+", ");
         if(!tmpRow[i].toString().isEmpty()) qu+=(modelData->column(i)->name+", ");
     }
     qu.truncate(qu.count()-2);
     qu+=") VALUES (";
     for (int i=0; i<modelData->columnCount(); i++){
-        //if (!modelData->column(i)->isAutoVal)
-        //    !tmpRow[i].toString().isEmpty() ? qu+=(":"+modelData->column(i)->name+", "):qu+=("NULL, ");
         if (!tmpRow[i].toString().isEmpty()) qu+=(":"+modelData->column(i)->name+", ");
     }
     qu.truncate(qu.count()-2);
@@ -297,7 +294,7 @@ bool DbTableModel::insertDb()
     qu.truncate(qu.count()-2);
     query.prepare(qu);
     for (int i=0; i<modelData->columnCount(); i++){
-        if (/*!modelData->column(i)->isAutoVal && */!QVariant(tmpRow[i]).toString().isEmpty()){
+        if (!QVariant(tmpRow[i]).toString().isEmpty()){
             QVariant val;
             switch (modelData->column(i)->type){
             case TYPE_BOOL:
@@ -357,7 +354,7 @@ bool DbTableModel::updateDb()
     qu.truncate(qu.count()-2);
     qu+=" WHERE ";
     for (int i=0; i<modelData->columnCount(); i++){
-        if (modelData->column(i)->isPk) {
+        if (pkList.contains(modelData->column(i)->name)) {
             qu+=(modelData->column(i)->name +" = :pk"+modelData->column(i)->name+" AND ");
         }
     }
@@ -386,7 +383,7 @@ bool DbTableModel::updateDb()
         }
     }
     for (int i=0; i<modelData->columnCount(); i++){
-        if (modelData->column(i)->isPk) {
+        if (pkList.contains(modelData->column(i)->name)) {
             QVariant pk_val;
             switch (modelData->column(i)->type){
                 case TYPE_BOOL:
@@ -423,14 +420,14 @@ bool DbTableModel::deleteDb(int row)
     QString qu;
     qu="DELETE FROM "+tableName+" WHERE ";
     for (int i=0; i<modelData->columnCount(); i++){
-        if (modelData->column(i)->isPk) {
+        if (pkList.contains(modelData->column(i)->name)) {
             qu+=(modelData->column(i)->name +" = "+":"+modelData->column(i)->name+" AND ");
         }
     }
     qu.truncate(qu.count()-5);
     query.prepare(qu);
     for (int i=0; i<modelData->columnCount(); i++){
-        if (modelData->column(i)->isPk) {
+        if (pkList.contains(modelData->column(i)->name)) {
             QVariant pk_val;
             switch (modelData->column(i)->type){
                 case TYPE_BOOL:
@@ -449,6 +446,7 @@ bool DbTableModel::deleteDb(int row)
             query.bindValue(":"+modelData->column(i)->name,pk_val);
         }
     }
+    //qDebug()<<query.executedQuery()<<" "<<qu;
     bool ok=query.exec();
     if (!ok){
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
@@ -492,6 +490,24 @@ bool DbTableModel::select()
     endResetModel();
     emit sigRefresh();
     return true;
+}
+
+void DbTableModel::updatePk()
+{
+    QSqlQuery query;
+    query.prepare("SELECT a.attname, c2.relname "
+                  "FROM pg_class c, pg_class c2, pg_index i, pg_attribute a "
+                  "WHERE c.relname = :table AND c.oid = i.indrelid AND i.indexrelid = c2.oid "
+                  "AND i.indisprimary AND i.indisunique AND a.attrelid=c2.oid AND a.attnum>0");
+    query.bindValue(":table",tableName);
+    if (query.exec()){
+        pkList.clear();
+        while (query.next()){
+            pkList.push_back(query.value(0).toString());
+        }
+    } else {
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
 }
 
 

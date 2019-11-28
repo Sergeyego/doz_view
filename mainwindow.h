@@ -31,6 +31,8 @@ private:
     ModelDoz *modelDoz;
     ModelDozData *modelDozData;
     CubeWidget *cubeDoz;
+    DialogReport *dialogReport;
+    DialogBunk *dialogBunk;
 
 private slots:
     void updDoz();
@@ -40,8 +42,6 @@ private slots:
     void confirmDoz();
     void newDoz();
     void reportDoz();
-    void loadBunk();
-    void olapDoz();
 };
 
 #endif // MAINWINDOW_H
