@@ -319,7 +319,7 @@ bool ModelLoadBunk::updatePart(QDate beg, QDate end)
 {
     QSqlQuery query;
     query.prepare("update dosage_spnd as ds "
-                  "set parti=(select strpart from calc_doz_parti_new(ds.id_comp,ds.id_dos,(select d.dat+d.tm from dosage as d where d.id=ds.id_dos))) "
+                  "set parti=(select strpart from calc_doz_parti_new(ds.id_comp,(select d.id_rcp from dosage as d where d.id=ds.id_dos),(select d.dat+d.tm from dosage as d where d.id=ds.id_dos))) "
                   "where (select d.dat from dosage as d where d.id=ds.id_dos) between :d1 and :d2");
     query.bindValue(":d1",beg);
     query.bindValue(":d2",end);
