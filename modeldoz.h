@@ -60,6 +60,13 @@ public:
     void refresh(QDateTime datetime);
 };
 
+class ModelCurrentPart: public QSqlQueryModel
+{
+public:
+    ModelCurrentPart(QObject *parent=0);
+    void refresh(QDateTime datetime);
+};
+
 class ModelLoadBunk : public DbTableModel
 {
 public:

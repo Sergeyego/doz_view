@@ -317,3 +317,23 @@ bool ModelLoadBunk::updatePart(QDate beg, QDate end)
     }
     return ok;
 }
+
+ModelCurrentPart::ModelCurrentPart(QObject *parent) : QSqlQueryModel(parent)
+{
+
+}
+
+void ModelCurrentPart::refresh(QDateTime datetime)
+{
+    QSqlQuery query;
+    query.prepare("select nam, calc_doz_parti(id,:dt) from matr order by nam");
+    query.bindValue(":dt",datetime);
+    if (query.exec()){
+        setQuery(query);
+        setHeaderData(0,Qt::Horizontal,QString("Компонент"));
+        setHeaderData(1,Qt::Horizontal,QString("Партия"));
+    } else {
+        clear();
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
+}

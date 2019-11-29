@@ -19,6 +19,7 @@ public:
 private:
     Ui::DialogBunk *ui;
     ModelCurrentBunk *modelCurrentBunk;
+    ModelCurrentPart *modelCurrentPart;
     ModelLoadBunk *modelLoadBunk;
 
 private slots:

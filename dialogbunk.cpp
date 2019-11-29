@@ -14,6 +14,9 @@ DialogBunk::DialogBunk(QWidget *parent) :
 
     modelCurrentBunk = new ModelCurrentBunk(this);
     ui->tableViewCurrent->setModel(modelCurrentBunk);
+
+    modelCurrentPart = new ModelCurrentPart(this);
+    ui->tableViewComp->setModel(modelCurrentPart);
     updCurrentTime();
 
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().day()+1));
@@ -34,6 +37,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     connect(ui->pushButtonSave,SIGNAL(clicked(bool)),this,SLOT(save()));
     connect(ui->pushButtonUpdLoad,SIGNAL(clicked(bool)),this,SLOT(updLoad()));
     connect(ui->pushButtonPart,SIGNAL(clicked(bool)),this,SLOT(calcPart()));
+    connect(modelLoadBunk,SIGNAL(sigUpd()),this,SLOT(updCurrent()));
 }
 
 DialogBunk::~DialogBunk()
@@ -43,8 +47,10 @@ DialogBunk::~DialogBunk()
 
 void DialogBunk::updCurrent()
 {
-    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime());
+    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime());    
     ui->tableViewCurrent->resizeToContents();
+    modelCurrentPart->refresh(ui->dateTimeEdit->dateTime());
+    ui->tableViewComp->resizeToContents();
 }
 
 void DialogBunk::updCurrentTime()
