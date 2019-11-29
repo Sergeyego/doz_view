@@ -31,6 +31,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->tableViewLoad->setColumnWidth(3,80);
     ui->tableViewLoad->setColumnWidth(4,190);
     ui->tableViewLoad->setColumnWidth(5,70);
+    ui->tableViewLoad->setColumnWidth(6,90);
 
     connect(ui->pushButtonCurrentTime,SIGNAL(clicked(bool)),this,SLOT(updCurrentTime()));
     connect(ui->pushButtonUpdCurrent,SIGNAL(clicked(bool)),this,SLOT(updCurrent()));
@@ -71,6 +72,10 @@ void DialogBunk::updLoad()
 
 void DialogBunk::calcPart()
 {
+    if (ui->dateEditEnd->date().addDays(-3)>=ui->dateEditBeg->date()){
+        QMessageBox::critical(this,QString("Недопустимое действие"),QString("Запрещено пересчитывать партии более чем за 3 дня"),QMessageBox::Cancel);
+        return;
+    }
     QString text=QString("Будут обновлены партии на дозировках с %1 по %2.").arg(ui->dateEditBeg->date().toString("dd.MM.yy")).arg(ui->dateEditEnd->date().toString("dd.MM.yy"));
     int q = QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
     if (q==QMessageBox::Ok){

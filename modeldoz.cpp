@@ -260,16 +260,25 @@ ModelCurrentBunk::ModelCurrentBunk(QObject *parent) : QSqlQueryModel(parent)
 
 }
 
+QVariant ModelCurrentBunk::data(const QModelIndex &item, int role) const
+{
+    if (item.column()==4 && role==Qt::DisplayRole){
+        return QSqlQueryModel::data(item,role).toDateTime().toString("dd.MM.yy hh:mm");
+    }
+    return QSqlQueryModel::data(item,role);
+}
+
 void ModelCurrentBunk::refresh(QDateTime datetime)
 {
     QSqlQuery query;
-    query.prepare("select bk.numer, t.nam, t.parti from bunk as bk "
+    query.prepare("select bk.numer, t.nam, t.parti, t.typ, t.dtm from bunk as bk "
                   "left join "
-                  "(select bc.id_bunk, m.nam, bc.parti from bunk_comp as bc "
+                  "(select bc.id_bunk, m.nam, bc.parti, tp.nam as typ, bc.dtm as dtm from bunk_comp as bc "
                   "inner join bunk as b on b.id=bc.id_bunk "
                   "inner join matr as m on m.id=bc.id_comp "
+                  "inner join el_types as tp on tp.id=bc.id_grp "
                   "where bc.dtm=(select max(dtm) from bunk_comp as bcc where bcc.dtm <= :dt and bcc.id_bunk=bc.id_bunk) "
-                  "group by bc.id_bunk, m.nam, bc.parti) as t on t.id_bunk=bk.id "
+                  "group by bc.id_bunk, m.nam, bc.parti, tp.nam, bc.dtm) as t on t.id_bunk=bk.id "
                   "where bk.is_tiny=0 "
                   "order by bk.nomer");
     query.bindValue(":dt",datetime);
@@ -278,6 +287,8 @@ void ModelCurrentBunk::refresh(QDateTime datetime)
         setHeaderData(0,Qt::Horizontal,QString("Бункер"));
         setHeaderData(1,Qt::Horizontal,QString("Компонент"));
         setHeaderData(2,Qt::Horizontal,QString("Партия"));
+        setHeaderData(3,Qt::Horizontal,QString("Группа"));
+        setHeaderData(4,Qt::Horizontal,QString("Дата засыпки"));
     } else {
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
@@ -292,6 +303,7 @@ ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
     addColumn("id_bunk",QString::fromUtf8("Бункер"),TYPE_STRING,NULL,Rels::instance()->relBunk);
     addColumn("id_comp",QString::fromUtf8("Компонент"),TYPE_STRING,NULL,Rels::instance()->relComp);
     addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
+    addColumn("id_grp",QString::fromUtf8("Группа"),TYPE_STRING,NULL,Rels::instance()->relGrp);
     setSort("bunk_comp.dat, bunk_comp.tm");
 
     setDefaultValue(2,QTime::currentTime());
@@ -307,7 +319,7 @@ bool ModelLoadBunk::updatePart(QDate beg, QDate end)
 {
     QSqlQuery query;
     query.prepare("update dosage_spnd as ds "
-                  "set parti=calc_doz_parti(ds.id_comp,(select d.dat+d.tm from dosage as d where d.id=ds.id_dos)) "
+                  "set parti=(select strpart from calc_doz_parti_new(ds.id_comp,ds.id_dos,(select d.dat+d.tm from dosage as d where d.id=ds.id_dos))) "
                   "where (select d.dat from dosage as d where d.id=ds.id_dos) between :d1 and :d2");
     query.bindValue(":d1",beg);
     query.bindValue(":d2",end);
@@ -323,15 +335,31 @@ ModelCurrentPart::ModelCurrentPart(QObject *parent) : QSqlQueryModel(parent)
 
 }
 
+QVariant ModelCurrentPart::data(const QModelIndex &item, int role) const
+{
+    if (item.column()==3 && role==Qt::DisplayRole){
+        return QSqlQueryModel::data(item,role).toDateTime().toString("dd.MM.yy hh:mm");
+    }
+    return QSqlQueryModel::data(item,role);
+}
+
 void ModelCurrentPart::refresh(QDateTime datetime)
 {
     QSqlQuery query;
-    query.prepare("select nam, calc_doz_parti(id,:dt) from matr order by nam");
+    query.prepare("select m.nam, bc.parti, tp.nam as typ, bc.dtm as dtm from bunk_comp as bc "
+                  "inner join bunk as b on b.id=bc.id_bunk "
+                  "inner join matr as m on m.id=bc.id_comp "
+                  "inner join el_types as tp on tp.id=bc.id_grp "
+                  "where bc.dtm=(select max(dtm) from bunk_comp as bcc "
+                  "where bcc.dtm <= :dt and bcc.id_bunk=0 and bcc.id_grp = bc.id_grp and bcc.id_comp=bc.id_comp) "
+                  "order by m.nam, dtm");
     query.bindValue(":dt",datetime);
     if (query.exec()){
         setQuery(query);
         setHeaderData(0,Qt::Horizontal,QString("Компонент"));
         setHeaderData(1,Qt::Horizontal,QString("Партия"));
+        setHeaderData(2,Qt::Horizontal,QString("Группа"));
+        setHeaderData(3,Qt::Horizontal,QString("Дата засыпки"));
     } else {
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
