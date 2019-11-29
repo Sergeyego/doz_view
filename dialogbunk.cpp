@@ -69,5 +69,6 @@ void DialogBunk::calcPart()
     int q = QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
     if (q==QMessageBox::Ok){
         modelLoadBunk->updatePart(ui->dateEditBeg->date(), ui->dateEditEnd->date());
+        emit sigPart();
     }
 }

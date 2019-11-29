@@ -27,6 +27,9 @@ private slots:
     void save();
     void updLoad();
     void calcPart();
+
+signals:
+    void sigPart();
 };
 
 #endif // DIALOGBUNK_H

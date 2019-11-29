@@ -100,6 +100,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionCube,SIGNAL(triggered(bool)),cubeDoz,SLOT(show()));
 
     connect(ui->tableViewDoz->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(updDozData(QModelIndex)));
+    connect(dialogBunk,SIGNAL(sigPart()),modelDozData,SLOT(select()));
 
     updDoz();
 }

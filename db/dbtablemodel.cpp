@@ -1,4 +1,6 @@
 #include "dbtablemodel.h"
+#include <QSqlDriver>
+#include <QSqlRecord>
 
 DbTableModel::DbTableModel(QString table, QObject *parent) :
     QAbstractTableModel(parent)
@@ -8,6 +10,10 @@ DbTableModel::DbTableModel(QString table, QObject *parent) :
     editor = new DataEditor(modelData,this);
     block=false;
     updatePk();
+    /*QSqlRecord localRecord = QSqlDatabase::database().driver()->record(tableName);
+    for (int i=0; i<localRecord.count(); i++){
+        qDebug()<<localRecord.value(i)<<" "<<localRecord.fieldName(i);
+    }*/
 }
 
 Qt::ItemFlags DbTableModel::flags(const QModelIndex &index) const
