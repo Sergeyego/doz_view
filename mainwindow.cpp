@@ -11,6 +11,7 @@ MainWindow::MainWindow(QWidget *parent) :
     QStringList axes;
     axes.push_back(tr("Рецептура"));
     axes.push_back(tr("Компонент"));
+    axes.push_back(tr("Партия компонента"));
     axes.push_back(tr("Партия дозировки"));
     axes.push_back(tr("Партия электродов"));
     axes.push_back(tr("Марка"));
@@ -19,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent) :
     axes.push_back(tr("Год"));
     axes.push_back(tr("Месяц"));
     axes.push_back(tr("День"));
-    QString query="select n.nam, mt.nam, d.parti, p.n_s||'-'||date_part('year',p.dat_part), e.marka, p.diam, t.nam, "
+    QString query="select n.nam, mt.nam, ds.parti, d.parti, p.n_s||'-'||date_part('year',p.dat_part), e.marka, p.diam, t.nam, "
             "substr(cast(d.dat as char(32)),1,4) as yr, "
             "substr(cast(d.dat as char(32)),1,7) as mn, "
             "substr(cast(d.dat as char(32)),1,10) as dy, "
@@ -70,6 +71,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->tableViewData->setColumnWidth(4,70);
     ui->tableViewData->setColumnWidth(5,70);
     ui->tableViewData->setColumnWidth(6,150);
+    ui->tableViewData->setColumnHidden(7,true);
 
     ui->actionUpdate->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
     ui->toolButtonUpd->setDefaultAction(ui->actionUpdate);
@@ -90,6 +92,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->actionCube->setIcon(this->style()->standardIcon(QStyle::SP_ComputerIcon));
 
+    ui->actionRstPart->setIcon(this->style()->standardIcon(QStyle::SP_DialogResetButton));
+
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),this,SLOT(updDoz()));
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),Rels::instance(),SLOT(refresh()));
     connect(ui->actionDel,SIGNAL(triggered(bool)),this,SLOT(delDoz()));
@@ -98,6 +102,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionReport,SIGNAL(triggered(bool)),this,SLOT(reportDoz()));
     connect(ui->actionLoad,SIGNAL(triggered(bool)),dialogBunk,SLOT(show()));
     connect(ui->actionCube,SIGNAL(triggered(bool)),cubeDoz,SLOT(show()));
+    connect(ui->actionRstPart,SIGNAL(triggered(bool)),this,SLOT(resetEdtPart()));
 
     connect(ui->tableViewDoz->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(updDozData(QModelIndex)));
     connect(dialogBunk,SIGNAL(sigPart()),modelDozData,SLOT(select()));
@@ -182,5 +187,15 @@ void MainWindow::reportDoz()
 {
     dialogReport->refresh(ui->dateEditBeg->date(),ui->dateEditEnd->date(),ui->radioButtonPart->isChecked());
     dialogReport->show();
+}
+
+void MainWindow::resetEdtPart()
+{
+    int row=ui->tableViewData->currentIndex().row();
+    QModelIndex ind=ui->tableViewData->model()->index(row,7);
+    if (ind.isValid()){
+        ui->tableViewData->model()->setData(ind,false,Qt::EditRole);
+        modelDozData->submitRow();
+    }
 }
 

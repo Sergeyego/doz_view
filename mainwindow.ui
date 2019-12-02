@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>996</width>
-    <height>696</height>
+    <width>994</width>
+    <height>694</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -381,7 +381,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>996</width>
+     <width>994</width>
      <height>24</height>
     </rect>
    </property>
@@ -393,6 +393,7 @@
     <addaction name="actionConfirm"/>
     <addaction name="actionNew"/>
     <addaction name="actionUpdate"/>
+    <addaction name="actionRstPart"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -469,6 +470,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionRstPart">
+   <property name="text">
+    <string>Сбросить флаг ред. партии</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+D</string>
    </property>
   </action>
  </widget>

@@ -42,6 +42,7 @@ private slots:
     void confirmDoz();
     void newDoz();
     void reportDoz();
+    void resetEdtPart();
 };
 
 #endif // MAINWINDOW_H

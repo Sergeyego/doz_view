@@ -68,8 +68,25 @@ ModelDozData::ModelDozData(QObject *parent): DbTableModel("dosage_spnd",parent)
     addColumn("kvo_comp",QString::fromUtf8("Рецепт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
     addColumn("kvo_fact",QString::fromUtf8("Факт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
     addColumn("id_rcp",QString::fromUtf8("Рецепт. отходов"),TYPE_STRING,NULL,Rels::instance()->relRcp);
+    addColumn("parti_man",QString::fromUtf8("Руч. парт."),TYPE_BOOL);
     setSuffix("inner join matr on matr.id = dosage_spnd.id_comp");
     setSort("matr.nam");
+}
+
+QVariant ModelDozData::data(const QModelIndex &index, int role) const
+{
+    if (role==Qt::BackgroundRole && index.column()==3 && data(this->index(index.row(),7),Qt::EditRole).toBool()){
+        return QVariant(QColor(170,255,170));
+    }
+    return DbTableModel::data(index,role);
+}
+
+bool ModelDozData::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (index.column()==3){
+        setData(this->index(index.row(),7),true,Qt::EditRole);
+    }
+    return DbTableModel::setData(index,value,role);
 }
 
 void ModelDozData::refresh(int id_doz)
@@ -318,9 +335,7 @@ void ModelLoadBunk::refresh(QDate beg, QDate end)
 bool ModelLoadBunk::updatePart(QDate beg, QDate end)
 {
     QSqlQuery query;
-    query.prepare("update dosage_spnd as ds "
-                  "set parti=(select strpart from calc_doz_parti_new(ds.id_comp,(select d.id_rcp from dosage as d where d.id=ds.id_dos),(select d.dat+d.tm from dosage as d where d.id=ds.id_dos))) "
-                  "where (select d.dat from dosage as d where d.id=ds.id_dos) between :d1 and :d2");
+    query.prepare("select * from calc_doz_parti_recalc(:d1, :d2)");
     query.bindValue(":d1",beg);
     query.bindValue(":d2",end);
     bool ok=query.exec();

@@ -21,6 +21,8 @@ class ModelDozData : public DbTableModel
 {
 public:
     ModelDozData(QObject *parent=0);
+    QVariant data(const QModelIndex &index, int role) const;
+    bool setData(const QModelIndex &index, const QVariant &value, int role);
     void refresh(int id_doz);
 };
 
