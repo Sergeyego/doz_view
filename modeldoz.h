@@ -10,7 +10,7 @@ class ModelDoz : public DbTableModel
 public:
     ModelDoz(QObject *parent=0);
     void refresh(QDate begDate, QDate endDate, bool byNam);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
+    QVariant data(const QModelIndex &index, int role) const;
     void confirmDoz(int row);
 
 protected:

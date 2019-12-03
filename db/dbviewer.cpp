@@ -47,7 +47,7 @@ void DbViewer::keyPressEvent(QKeyEvent *e)
             }
             case Qt::Key_Escape:
             {
-                sqlModel->escAdd();
+                sqlModel->revert();
                 break;
             }
             case Qt::Key_Down:
@@ -78,9 +78,9 @@ void DbViewer::keyPressEvent(QKeyEvent *e)
                 if ((currentIndex().column()==j) && (row==sqlModel->rowCount()-1)) {
                     sqlModel->insertRow(sqlModel->rowCount());
                     setCurrentIndex(this->model()->index(sqlModel->rowCount()-1,i));
-                } else
-                    //this->setCurrentIndex(this->moveCursor(this->MoveNext,Qt::NoModifier));
+                } else {
                     QTableView::keyPressEvent(e);
+                }
                 break;
             }
             default:
@@ -90,24 +90,27 @@ void DbViewer::keyPressEvent(QKeyEvent *e)
             }
         }
 
-    } else
+    } else {
         QTableView::keyPressEvent(e);
+    }
 }
 
 
 void DbViewer::upd()
 {
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
-    if (sqlModel)
+    if (sqlModel) {
         sqlModel->select();
+    }
 }
 
 void DbViewer::remove()
 {
     DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
     QModelIndex ind=this->currentIndex();
-    if (sqlModel && sqlModel->rowCount() && sqlModel->removeRow(ind.row()))
+    if (sqlModel && sqlModel->rowCount() && sqlModel->removeRow(ind.row())){
         setCurrentIndex(model()->index(ind.row()-1,ind.column()));
+    }
 }
 
 void DbViewer::submit(QModelIndex ind, QModelIndex oldInd)
@@ -119,10 +122,10 @@ void DbViewer::submit(QModelIndex ind, QModelIndex oldInd)
             writeOk=true;
             return;
         }
-        if (sqlModel->isAdd() && !sqlModel->isEdt() && oldInd.row()!=sqlModel->rowCount()-2)
-            sqlModel->escAdd();
-        else if ((sqlModel->isEdt() && !sqlModel->isAdd()) || (sqlModel->isAdd() && ind.row()!=sqlModel->rowCount()-1)){
-            writeOk=sqlModel->submitRow();
+        if (sqlModel->isAdd() && !sqlModel->isEdt() && oldInd.row()!=sqlModel->rowCount()-2){
+            sqlModel->revert();
+        } else if ((sqlModel->isEdt() && !sqlModel->isAdd()) || (sqlModel->isAdd() && ind.row()!=sqlModel->rowCount()-1)){
+            writeOk=sqlModel->submit();
         }
     }
 }
@@ -131,8 +134,9 @@ void DbViewer::focusOutEvent(QFocusEvent *event)
 {
     if (this->editTriggers()!=QAbstractItemView::NoEditTriggers && event->reason()==Qt::MouseFocusReason){
         DbTableModel *sqlModel = qobject_cast<DbTableModel *>(this->model());
-        if (sqlModel && sqlModel->isAdd() && !sqlModel->isEdt())
-            sqlModel->escAdd();
+        if (sqlModel && sqlModel->isAdd() && !sqlModel->isEdt()){
+            sqlModel->revert();
+        }
     }
     return QTableView::focusOutEvent(event);
 }

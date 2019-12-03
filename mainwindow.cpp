@@ -195,7 +195,7 @@ void MainWindow::resetEdtPart()
     QModelIndex ind=ui->tableViewData->model()->index(row,7);
     if (ind.isValid()){
         ui->tableViewData->model()->setData(ind,false,Qt::EditRole);
-        modelDozData->submitRow();
+        modelDozData->submit();
     }
 }
 

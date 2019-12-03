@@ -178,5 +178,5 @@ void Ttl::setR(double R){r=R;}
 void Sum::updR(double E){r+=E;}
 void Max::updR(double E){if(E>r)r=E;}
 void Min::updR(double E){if(E<r)r=E;}
-double Sum::getR(int N){return r;}
+double Sum::getR(int /*N*/){return r;}
 double Avg::getR(int N){return r/N;}

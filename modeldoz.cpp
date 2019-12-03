@@ -2,14 +2,19 @@
 
 ModelDoz::ModelDoz(QObject *parent) : DbTableModel("dosage",parent)
 {
-    addColumn("id",QString::fromUtf8("id"),TYPE_INT);
-    addColumn("dat",QString::fromUtf8("Дата"),TYPE_DATE);
-    addColumn("tm",QString::fromUtf8("Время"),TYPE_VARIANT);
-    addColumn("id_rcp",QString::fromUtf8("Рецептура"),TYPE_STRING,NULL,Rels::instance()->relRcp);
-    addColumn("kvo_tot",QString::fromUtf8("К-во, кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,1,this));
-    addColumn("result",QString::fromUtf8("OK"),TYPE_INTBOOL);
-    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
+    addColumn("id",QString::fromUtf8("id"));
+    addColumn("dat",QString::fromUtf8("Дата"));
+    addColumn("tm",QString::fromUtf8("Время"));
+    addColumn("id_rcp",QString::fromUtf8("Рецептура"),NULL,Rels::instance()->relRcp);
+    addColumn("kvo_tot",QString::fromUtf8("К-во, кг"),new QDoubleValidator(0,1000000,1,this));
+    addColumn("result",QString::fromUtf8("OK"));
+    addColumn("parti",QString::fromUtf8("Партия"));
     setSuffix("inner join rcp_nam on rcp_nam.id = dosage.id_rcp");
+    for (int i=0; i<5; i++){
+        setColumnFlags(i,Qt::ItemIsSelectable | Qt::ItemIsEnabled);
+    }
+    setColumnFlags(5,Qt::ItemIsEditable | Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
+    setColumnFlags(6,Qt::ItemIsEditable | Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
 }
 
 void ModelDoz::refresh(QDate begDate, QDate endDate, bool byNam)
@@ -19,21 +24,24 @@ void ModelDoz::refresh(QDate begDate, QDate endDate, bool byNam)
     select();
 }
 
-Qt::ItemFlags ModelDoz::flags(const QModelIndex &index) const
+QVariant ModelDoz::data(const QModelIndex &index, int role) const
 {
     if (index.column()==5){
-        return Qt::ItemIsEditable | Qt::ItemIsSelectable  | Qt::ItemIsEnabled;
-    } else if (index.column()==6){
-        return Qt::ItemIsEditable | Qt::ItemIsSelectable |Qt::ItemIsUserCheckable | Qt::ItemIsEnabled;
-    } else {
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
+        if (role==Qt::CheckStateRole){
+            return DbTableModel::data(index,Qt::EditRole).toBool() ? Qt::Checked : Qt::Unchecked;
+        } else if (role==Qt::DisplayRole){
+            return DbTableModel::data(index,Qt::EditRole).toBool() ? QString("Да") : QString("Нет");
+        } else if (role==Qt::TextAlignmentRole){
+            return int(Qt::AlignLeft | Qt::AlignVCenter);
+        }
     }
+    return DbTableModel::data(index,role);
 }
 
 void ModelDoz::confirmDoz(int row)
 {
     if (setData(index(row,5),1,Qt::EditRole)){
-        if (submitRow()){
+        if (submit()){
             int id_doz=data(index(row,0),Qt::EditRole).toInt();
             QSqlQuery query;
             query.prepare("update dosage_spnd set kvo_fact = kvo_comp where id_dos = :id ");
@@ -61,14 +69,14 @@ bool ModelDoz::deleteDb(int row)
 
 ModelDozData::ModelDozData(QObject *parent): DbTableModel("dosage_spnd",parent)
 {
-    addColumn("id_dos",QString::fromUtf8("id_dos"),TYPE_INT);
-    addColumn("id_comp",QString::fromUtf8("Компонент"),TYPE_STRING,NULL,Rels::instance()->relComp);
-    addColumn("id_bunk",QString::fromUtf8("Бункер"),TYPE_STRING,NULL,Rels::instance()->relBunk);
-    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
-    addColumn("kvo_comp",QString::fromUtf8("Рецепт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
-    addColumn("kvo_fact",QString::fromUtf8("Факт., кг"),TYPE_DOUBLE,new QDoubleValidator(0,1000000,2,this));
-    addColumn("id_rcp",QString::fromUtf8("Рецепт. отходов"),TYPE_STRING,NULL,Rels::instance()->relRcp);
-    addColumn("parti_man",QString::fromUtf8("Руч. парт."),TYPE_BOOL);
+    addColumn("id_dos",QString::fromUtf8("id_dos"));
+    addColumn("id_comp",QString::fromUtf8("Компонент"),NULL,Rels::instance()->relComp);
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),NULL,Rels::instance()->relBunk);
+    addColumn("parti",QString::fromUtf8("Партия"));
+    addColumn("kvo_comp",QString::fromUtf8("Рецепт., кг"),new QDoubleValidator(0,1000000,2,this));
+    addColumn("kvo_fact",QString::fromUtf8("Факт., кг"),new QDoubleValidator(0,1000000,2,this));
+    addColumn("id_rcp",QString::fromUtf8("Рецепт. отходов"),NULL,Rels::instance()->relRcp);
+    addColumn("parti_man",QString::fromUtf8("Руч. парт."));
     setSuffix("inner join matr on matr.id = dosage_spnd.id_comp");
     setSort("matr.nam");
 }
@@ -314,13 +322,13 @@ void ModelCurrentBunk::refresh(QDateTime datetime)
 
 ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
 {
-    addColumn("id",QString::fromUtf8("id"),TYPE_INT);
-    addColumn("dat",QString::fromUtf8("Дата"),TYPE_DATE);
-    addColumn("tm",QString::fromUtf8("Время"),TYPE_VARIANT);
-    addColumn("id_bunk",QString::fromUtf8("Бункер"),TYPE_STRING,NULL,Rels::instance()->relBunk);
-    addColumn("id_comp",QString::fromUtf8("Компонент"),TYPE_STRING,NULL,Rels::instance()->relComp);
-    addColumn("parti",QString::fromUtf8("Партия"),TYPE_STRING);
-    addColumn("id_grp",QString::fromUtf8("Группа"),TYPE_STRING,NULL,Rels::instance()->relGrp);
+    addColumn("id",QString::fromUtf8("id"));
+    addColumn("dat",QString::fromUtf8("Дата"));
+    addColumn("tm",QString::fromUtf8("Время"));
+    addColumn("id_bunk",QString::fromUtf8("Бункер"),NULL,Rels::instance()->relBunk);
+    addColumn("id_comp",QString::fromUtf8("Компонент"),NULL,Rels::instance()->relComp);
+    addColumn("parti",QString::fromUtf8("Партия"));
+    addColumn("id_grp",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
     setSort("bunk_comp.dat, bunk_comp.tm");
 
     setDefaultValue(2,QTime::currentTime());

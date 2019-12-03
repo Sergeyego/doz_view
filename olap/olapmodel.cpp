@@ -24,12 +24,12 @@ OlapModel::~OlapModel()
     delete tMax;
 }
 
-int OlapModel::rowCount(const QModelIndex &parent) const
+int OlapModel::rowCount(const QModelIndex& /*parent*/) const
 {
     return (xJ.size() && yI.size())? hCube->Ny+xJ.size() : 0;
 }
 
-int OlapModel::columnCount(const QModelIndex &parent) const
+int OlapModel::columnCount(const QModelIndex& /*parent*/) const
 {
     return (yI.size() && xJ.size())? hCube->Nx+yI.size() : 0;
 }
