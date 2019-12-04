@@ -160,7 +160,7 @@ void DbViewer::contextMenuEvent(QContextMenuEvent *event)
         menu.addAction(updAct);
         menu.addSeparator();
         if (this->selectionModel()){
-            if (this->selectionModel()->currentIndex().isValid()){
+            if (this->indexAt(event->pos()).isValid()){
                 menu.addAction(removeAct);
                 menu.addSeparator();
             }
