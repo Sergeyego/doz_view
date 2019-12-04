@@ -163,7 +163,7 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
                         }
                     }
                 }
-                QVariant val = v.isNull() ? QVariant() : v;
+                QVariant val = v.isNull() ? sqlModel->nullVal(index.column()) : v;
                 sqlModel->setData(index,val,Qt::EditRole);
                 return;
             }
