@@ -191,8 +191,6 @@ bool DbTableModel::insertRow(int /*row*/, const QModelIndex& /*parent*/)
 {
     if (block) return false;
     bool ok=false;
-    submit();
-    //qDebug()<<"add="<<editor->isAdd()<<" edt="<<editor->isEdt();
     if (!editor->isAdd() && !editor->isEdt()){
         beginInsertRows(QModelIndex(),rowCount(),rowCount());
         ok=editor->add(rowCount(),defaultTmpRow);
@@ -428,16 +426,20 @@ void DbTableModel::revert()
 bool DbTableModel::submit()
 {
     if (block) return false;
-    if (editor->isAdd() && editor->isEdt()){
-        if (insertDb()) {
-            editor->submit();
-            //qDebug()<<"SUBMIT_ADD";
+    if (editor->isEdt()){
+        if (editor->isAdd()){
+            if (insertDb()) {
+                editor->submit();
+                //qDebug()<<"SUBMIT_ADD";
+            }
+        } else if (!editor->isAdd()){
+            if (updateDb()){
+                editor->submit();
+                //qDebug()<<"SUBMIT_EDT";
+            }
         }
-    } else if (!editor->isAdd() && editor->isEdt()){
-        if (updateDb()){
-            editor->submit();
-            //qDebug()<<"SUBMIT_EDT";
-        }
+    } else if (editor->isAdd()){
+        revert();
     }
     return !(editor->isAdd() || editor->isEdt());
 }
@@ -596,15 +598,23 @@ QVector<QVariant> DataEditor::newRow()
     return r;
 }
 
-
-DbRelation::DbRelation(DbRelationalModel *queryModel, int key, int disp, QObject *parent) :
+DbRelation::DbRelation(QAbstractItemModel *queryModel, int key, int disp, QObject *parent) :
     relQueryModel(queryModel), keyCol(key), dispCol(disp), QObject(parent)
 {
     reHash();
     filterModel = new QSortFilterProxyModel(this);
     filterModel->setSourceModel(relQueryModel);
     filterModel->setFilterKeyColumn(disp);
-    connect(queryModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+    DbRelationalModel *sqlModel = qobject_cast< DbRelationalModel *>(relQueryModel);
+    if (sqlModel){
+        connect(queryModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+    } else {
+        DbTableModel *dbModel = qobject_cast< DbTableModel *>(relQueryModel);
+        if (dbModel){
+            connect(dbModel,SIGNAL(sigUpd()),this,SLOT(reHash()));
+            connect(dbModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+        }
+    }
 }
 
 DbRelation::DbRelation(const QString &query, int key, int disp, QObject *parent) :
@@ -615,17 +625,16 @@ DbRelation::DbRelation(const QString &query, int key, int disp, QObject *parent)
     filterModel = new QSortFilterProxyModel(this);
     filterModel->setSourceModel(relQueryModel);
     filterModel->setFilterKeyColumn(disp);
-    connect(relQueryModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
+    DbRelationalModel *sqlModel = qobject_cast< DbRelationalModel *>(relQueryModel);
+    connect(sqlModel,SIGNAL(sigRefresh()),this,SLOT(reHash()));
 }
-
-
 
 QVariant DbRelation::data(QString key)
 {
     return relQueryModel->data(dict.value(key,QModelIndex()),Qt::EditRole);
 }
 
-DbRelationalModel *DbRelation::model() const
+QAbstractItemModel *DbRelation::model() const
 {
     return relQueryModel;
 }
@@ -655,6 +664,19 @@ void DbRelation::reHash()
     }
 }
 
+void DbRelation::refreshModel()
+{
+    DbRelationalModel *sqlModel = qobject_cast< DbRelationalModel *>(relQueryModel);
+    if (sqlModel){
+        sqlModel->refresh();
+    } else {
+        DbTableModel *dbModel = qobject_cast< DbTableModel *>(relQueryModel);
+        if (dbModel){
+            dbModel->select();
+        }
+    }
+}
+
 DbRelationalModel::DbRelationalModel(QObject *parent) : QSqlQueryModel(parent)
 {
 
@@ -665,14 +687,16 @@ DbRelationalModel::DbRelationalModel(QString query, QObject *parent) : QSqlQuery
     this->setQuery(query);
 }
 
-void DbRelationalModel::setQuery(const QString &query, const QSqlDatabase &db)
+bool DbRelationalModel::setQuery(const QString &query, const QSqlDatabase &db)
 {
     qu=query;
     QSqlQueryModel::setQuery(query,db);
-    if (this->lastError().isValid()){
+    bool ok=!this->lastError().isValid();
+    if (!ok){
         QMessageBox::critical(NULL,tr("Error"),this->lastError().text(),QMessageBox::Cancel);
     }
     emit sigRefresh();
+    return ok;
 }
 
 void DbRelationalModel::refresh()

@@ -22,7 +22,7 @@ class DbRelationalModel : public QSqlQueryModel{
 public:
     DbRelationalModel(QObject *parent=0);
     DbRelationalModel(QString query, QObject *parent=0);
-    void setQuery(const QString &query, const QSqlDatabase &db=QSqlDatabase());
+    bool setQuery(const QString &query, const QSqlDatabase &db=QSqlDatabase());
 signals:
     void sigRefresh();
 public slots:
@@ -35,21 +35,23 @@ class DbRelation : public QObject
 {
     Q_OBJECT
 public:
-    DbRelation(DbRelationalModel *queryModel, int key, int disp, QObject *parent=0);
+    DbRelation(QAbstractItemModel *queryModel, int key, int disp, QObject *parent=0);
     DbRelation(const QString &query, int key, int disp, QObject *parent=0);
     QVariant data(QString key);
-    DbRelationalModel *model() const;
+    QAbstractItemModel *model() const;
     QSortFilterProxyModel *proxyModel() const;
     int columnKey();
     int columnDisplay();
 private:
-    DbRelationalModel *relQueryModel;
+    QAbstractItemModel *relQueryModel;
     QSortFilterProxyModel *filterModel;
     QHash <QString, QModelIndex> dict;
     int keyCol;
     int dispCol;
 private slots:
     void reHash();
+public slots:
+    void refreshModel();
 };
 
 typedef struct

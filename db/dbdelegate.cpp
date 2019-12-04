@@ -81,37 +81,51 @@ QWidget *DbDelegate::createEditor (QWidget * parent, const QStyleOptionViewItem 
 void DbDelegate::setEditorData ( QWidget * editor, const QModelIndex & index ) const
 {
     const DbTableModel *sqlModel = qobject_cast<const DbTableModel *>(index.model());
-    if (sqlModel && sqlModel->relation(index.column())){
-        QComboBox *combo = qobject_cast<QComboBox *>(editor);
-        if (combo) {
-            QAbstractItemModel *childModel=sqlModel->relation(index.column())->model();
-            if (childModel){
-                combo->setModel(sqlModel->relation(index.column())->proxyModel());
-                combo->setModelColumn(sqlModel->relation(index.column())->columnDisplay());
-                combo->setEditable(true);
-                CustomCompletter *c = new CustomCompletter(combo);
-                c->setModel(sqlModel->relation(index.column())->proxyModel());
-                c->setCompletionColumn(sqlModel->relation(index.column())->columnDisplay());
-                combo->setCompleter(c);
-                int pos=combo->findText(sqlModel->data(index).toString());
-                if (pos!=-1){
-                    combo->setCurrentIndex(pos);
+    if (sqlModel){
+        if (sqlModel->relation(index.column())){
+            QComboBox *combo = qobject_cast<QComboBox *>(editor);
+            if (combo) {
+                QAbstractItemModel *childModel=sqlModel->relation(index.column())->model();
+                if (childModel){
+                    combo->setModel(sqlModel->relation(index.column())->proxyModel());
+                    combo->setModelColumn(sqlModel->relation(index.column())->columnDisplay());
+                    combo->setEditable(true);
+                    CustomCompletter *c = new CustomCompletter(combo);
+                    c->setModel(sqlModel->relation(index.column())->proxyModel());
+                    c->setCompletionColumn(sqlModel->relation(index.column())->columnDisplay());
+                    combo->setCompleter(c);
+                    int pos=combo->findText(sqlModel->data(index).toString());
+                    if (pos!=-1){
+                        combo->setCurrentIndex(pos);
+                    } else {
+                        combo->lineEdit()->setText(sqlModel->data(index).toString());
+                    }
+                    return;
+                }
+            } else {
+                QLineEdit *le = qobject_cast<QLineEdit *>(editor);
+                if (le){
+                    le->setText(sqlModel->data(index,Qt::DisplayRole).toString());
+                    return;
+                }
+            }
+        }
+        if (sqlModel->columnType(index.column()==QMetaType::QDate)){
+            CustomDateEdit *dateEdit = qobject_cast<CustomDateEdit *>(editor);
+            if (dateEdit){
+                QVariant dat=sqlModel->data(index,Qt::EditRole);
+                if (dat.isNull()){
+                    dateEdit->setDate(dateEdit->minimumDate());
                 } else {
-                    combo->lineEdit()->setText(sqlModel->data(index).toString());
+                    dateEdit->setDate(dat.toDate());
                 }
                 return;
             }
-        } else {
-            QLineEdit *le = qobject_cast<QLineEdit *>(editor);
-            if (le){
-                le->setText(sqlModel->data(index,Qt::DisplayRole).toString());
-                return;
-            }
         }
-    }
-    if (sqlModel && sqlModel->validator(index.column())){
-        QLineEdit *line = qobject_cast<QLineEdit *>(editor);
-        if (line) line->setValidator(sqlModel->validator(index.column()));
+        if (sqlModel->validator(index.column())){
+            QLineEdit *line = qobject_cast<QLineEdit *>(editor);
+            if (line) line->setValidator(sqlModel->validator(index.column()));
+        }
     }
     return QItemDelegate::setEditorData(editor, index);
 }
@@ -125,12 +139,35 @@ void DbDelegate::setModelData ( QWidget * editor, QAbstractItemModel * model, co
         if (sqlModel->relation(index.column())){
             QComboBox *combo = qobject_cast<QComboBox *>(editor);
             if (combo) {
-                combo->setCurrentIndex(combo->findText(combo->currentText()));
-                QVariant v=combo->model()->data(combo->model()->index(combo->currentIndex(),sqlModel->relation(index.column())->columnKey()),Qt::EditRole);
-                QVariant val = v.isNull() ? sqlModel->nullVal(index.column()) : v;
+                QString text=combo->currentText();
+                QVariant v;
+                int pos=combo->findText(text);
+                if (pos>=0){
+                    combo->setCurrentIndex(pos);
+                    v=combo->model()->data(combo->model()->index(combo->currentIndex(),sqlModel->relation(index.column())->columnKey()),Qt::EditRole);
+                } else if (!text.isEmpty()) {
+                    QSortFilterProxyModel *fmodel = qobject_cast<QSortFilterProxyModel *>(combo->model());
+                    if (fmodel){
+                        DbTableModel *m = qobject_cast<DbTableModel *>(fmodel->sourceModel());
+                        if (m){
+                            int n=QMessageBox::information(NULL,QString::fromUtf8("Предупреждение"),QString::fromUtf8("Не найдено значение ")+text+QString::fromUtf8(". Добавить его в таблицу?"),QMessageBox::Yes,QMessageBox::No);
+                            if (n==QMessageBox::Yes){
+                                m->insertRow(m->rowCount());
+                                if (m->isAdd()){
+                                    m->setData(m->index(m->rowCount()-1,sqlModel->relation(index.column())->columnDisplay()),text,Qt::EditRole);
+                                    if (m->submit()){
+                                        v=m->data(m->index(m->rowCount()-1,sqlModel->relation(index.column())->columnKey()),Qt::EditRole);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                QVariant val = v.isNull() ? QVariant() : v;
                 sqlModel->setData(index,val,Qt::EditRole);
                 return;
             }
+
         } else {
             QLineEdit *le = qobject_cast<QLineEdit *>(editor);
             if (le){
@@ -205,14 +242,14 @@ CustomCompletter::CustomCompletter(QObject *parent):QCompleter(parent)
 
 bool CustomCompletter::eventFilter(QObject *o, QEvent *e)
 {
-    /*if (e->type()==QEvent::KeyPress){
+    if (e->type()==QEvent::KeyPress){
         QKeyEvent *keyEvent = static_cast<QKeyEvent *>(e);
         //qDebug()<<keyEvent;
         if (keyEvent->key()==Qt::Key_Tab) {
             this->popup()->close();
             return false;
         }
-    }*/
+    }
     return QCompleter::eventFilter(o,e);
 }
 

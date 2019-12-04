@@ -24,6 +24,7 @@ public:
     void addMapping(QWidget *widget, int section);
     int currentIndex();
     void setDefaultFocus(int n);
+    void setItemDelegate(QAbstractItemDelegate *delegate);
     
 private:
     QVector <QWidget*> lock1;

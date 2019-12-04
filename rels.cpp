@@ -23,9 +23,9 @@ Rels::Rels(QObject *parent) : QObject(parent)
 
 void Rels::refresh()
 {
-    relRcp->model()->refresh();
-    relComp->model()->refresh();
-    relBunk->model()->refresh();
-    relGrp->model()->refresh();
+    relRcp->refreshModel();
+    relComp->refreshModel();
+    relBunk->refreshModel();
+    relGrp->refreshModel();
     emit sigRefresh();
 }
