@@ -78,4 +78,23 @@ public:
     void refresh(QDate beg, QDate end);
     bool updatePart(QDate beg, QDate end);
 };
+
+class ModelHist: public QSqlQueryModel
+{
+    Q_OBJECT
+public:
+    ModelHist(QObject *parent=0);
+    QVariant data(const QModelIndex &item, int role) const;
+    void refresh(int id_matr, QDateTime tm);
+signals:
+    void sigRefresh();
+};
+
+class ModelGroupEl : public DbTableModel
+{
+public:
+    ModelGroupEl(QObject *parent=0);
+    bool insertRow(int row, const QModelIndex &parent);
+    bool removeRow(int row, const QModelIndex &parent);
+};
 #endif // MODELDOZ_H

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>994</width>
-    <height>694</height>
+    <width>992</width>
+    <height>692</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -381,7 +381,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>994</width>
+     <width>992</width>
      <height>24</height>
     </rect>
    </property>
@@ -400,6 +400,9 @@
      <string>Контейнеры с компонентами</string>
     </property>
     <addaction name="actionLoad"/>
+    <addaction name="actionHist"/>
+    <addaction name="separator"/>
+    <addaction name="actionGrp"/>
    </widget>
    <widget class="QMenu" name="menu_3">
     <property name="title">
@@ -478,6 +481,22 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+D</string>
+   </property>
+  </action>
+  <action name="actionHist">
+   <property name="text">
+    <string>История засыпки</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+H</string>
+   </property>
+  </action>
+  <action name="actionGrp">
+   <property name="text">
+    <string>Группы электродов для компонентов</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+G</string>
    </property>
   </action>
  </widget>

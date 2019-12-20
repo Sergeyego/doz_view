@@ -388,3 +388,62 @@ void ModelCurrentPart::refresh(QDateTime datetime)
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
     }
 }
+
+ModelHist::ModelHist(QObject *parent) : QSqlQueryModel(parent)
+{
+}
+
+QVariant ModelHist::data(const QModelIndex &item, int role) const
+{
+    if (item.column()==0 && role==Qt::DisplayRole){
+        return QSqlQueryModel::data(item,role).toDateTime().toString("dd.MM.yy hh:mm");
+    }
+    return QSqlQueryModel::data(item,role);
+}
+
+void ModelHist::refresh(int id_matr, QDateTime tm)
+{
+    QSqlQuery query;
+    query.prepare("select bc.dtm as dtm, b.numer, bc.parti, tp.nam as typ from bunk_comp as bc "
+                  "inner join bunk as b on b.id=bc.id_bunk "
+                  "inner join matr as m on m.id=bc.id_comp "
+                  "inner join el_types as tp on tp.id=bc.id_grp "
+                  "where bc.dtm>=:dt and bc.id_comp= :id_matr "
+                  "order by dtm desc");
+    query.bindValue(":dt",tm);
+    query.bindValue(":id_matr",id_matr);
+    if (query.exec()){
+        setQuery(query);
+        setHeaderData(0,Qt::Horizontal,QString("Дата засыпки"));
+        setHeaderData(1,Qt::Horizontal,QString("Бункер"));
+        setHeaderData(2,Qt::Horizontal,QString("Партия"));
+        setHeaderData(3,Qt::Horizontal,QString("Группа"));
+        emit sigRefresh();
+    } else {
+        clear();
+        QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
+    }
+}
+
+ModelGroupEl::ModelGroupEl(QObject *parent) : DbTableModel("elrtr",parent)
+{
+    addColumn("id",QString("id"));
+    addColumn("marka",QString("Марка"));
+    addColumn("id_vid_doz",QString("Группа"),NULL,Rels::instance()->relGrp);
+    setSort("elrtr.marka");
+    setFilter("elrtr.id<>0");
+    setColumnFlags(0,Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
+    setColumnFlags(1,Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
+    setColumnFlags(2,Qt::ItemIsEditable | Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
+    select();
+}
+
+bool ModelGroupEl::insertRow(int /*row*/, const QModelIndex &/*parent*/)
+{
+    return false;
+}
+
+bool ModelGroupEl::removeRow(int /*row*/, const QModelIndex &/*parent*/)
+{
+    return false;
+}

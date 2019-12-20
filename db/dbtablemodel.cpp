@@ -113,6 +113,14 @@ QVariant DbTableModel::headerData(int section, Qt::Orientation orientation, int 
 
 bool DbTableModel::addColumn(QString name, QString display, QValidator *validator, DbRelation *relation)
 {
+    QVariant emptyval=defaultRecord.value(name);
+    if (!validator){
+        if (emptyval.type()==QMetaType::Int || emptyval.type()==QMetaType::LongLong){
+            validator = new QIntValidator(this);
+        } else if (emptyval.type()==QMetaType::Double){
+            validator = new QDoubleValidator(this);
+        }
+    }
     col tmpColumn;
     tmpColumn.name=name;
     tmpColumn.display=display;
@@ -124,7 +132,6 @@ bool DbTableModel::addColumn(QString name, QString display, QValidator *validato
     if (validator){
         validator->setLocale(QLocale::English);
     }
-    QVariant emptyval=defaultRecord.value(name);
     QVariant defaultval;
     if (emptyval.type()==QMetaType::QDate){
         defaultval=QDate::currentDate();

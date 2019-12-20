@@ -9,6 +9,8 @@
 #include "dialogreport.h"
 #include "dialogbunk.h"
 #include "olap/cubewidget.h"
+#include "dialoghist.h"
+#include "dialoggroup.h"
 
 namespace Ui {
 class MainWindow;
@@ -43,6 +45,8 @@ private slots:
     void newDoz();
     void reportDoz();
     void resetEdtPart();
+    void histLoad();
+    void groupEl();
 };
 
 #endif // MAINWINDOW_H

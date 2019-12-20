@@ -40,7 +40,9 @@ SOURCES += \
     olap/olapmodel.cpp \
     olap/tableview.cpp \
     dialogreport.cpp \
-    dialogbunk.cpp
+    dialogbunk.cpp \
+    dialoghist.cpp \
+    dialoggroup.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -58,7 +60,9 @@ HEADERS += \
     olap/olapmodel.h \
     olap/tableview.h \
     dialogreport.h \
-    dialogbunk.h
+    dialogbunk.h \
+    dialoghist.h \
+    dialoggroup.h
 
 FORMS += \
         mainwindow.ui \
@@ -67,7 +71,9 @@ FORMS += \
     olap/axiswidget.ui \
     olap/cubewidget.ui \
     dialogreport.ui \
-    dialogbunk.ui
+    dialogbunk.ui \
+    dialoghist.ui \
+    dialoggroup.ui
 
 DISTFILES +=
 
