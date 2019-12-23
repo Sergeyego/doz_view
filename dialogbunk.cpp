@@ -6,6 +6,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui(new Ui::DialogBunk)
 {
     ui->setupUi(this);
+    ui->dateTimeEdit->calendarWidget()->setFirstDayOfWeek(Qt::Monday);
     ui->pushButtonUpdLoad->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
     ui->pushButtonCurrentTime->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
     ui->pushButtonSave->setIcon(this->style()->standardIcon(QStyle::SP_DialogSaveButton));
@@ -62,7 +63,7 @@ void DialogBunk::updCurrentTime()
 
 void DialogBunk::save()
 {
-    ui->tableViewCurrent->save(QString("Состояние бункеров на ")+ui->dateTimeEdit->dateTime().toString("dd.MM.yy HH.mm"));
+    ui->tableViewCurrent->save(QString::fromUtf8("Состояние бункеров на ")+ui->dateTimeEdit->dateTime().toString("dd.MM.yy HH.mm"));
 }
 
 void DialogBunk::updLoad()
@@ -73,11 +74,11 @@ void DialogBunk::updLoad()
 void DialogBunk::calcPart()
 {
     if (ui->dateEditEnd->date().addDays(-3)>=ui->dateEditBeg->date()){
-        QMessageBox::critical(this,QString("Недопустимое действие"),QString("Запрещено пересчитывать партии более чем за 3 дня"),QMessageBox::Cancel);
+        QMessageBox::critical(this,QString::fromUtf8("Недопустимое действие"),QString::fromUtf8("Запрещено пересчитывать партии более чем за 3 дня"),QMessageBox::Cancel);
         return;
     }
-    QString text=QString("Будут обновлены партии на дозировках с %1 по %2.").arg(ui->dateEditBeg->date().toString("dd.MM.yy")).arg(ui->dateEditEnd->date().toString("dd.MM.yy"));
-    int q = QMessageBox::question(this,QString("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
+    QString text=QString::fromUtf8("Будут обновлены партии на дозировках с %1 по %2.").arg(ui->dateEditBeg->date().toString("dd.MM.yy")).arg(ui->dateEditEnd->date().toString("dd.MM.yy"));
+    int q = QMessageBox::question(this,QString::fromUtf8("Подтвердите действие"),text,QMessageBox::Ok,QMessageBox::Cancel);
     if (q==QMessageBox::Ok){
         modelLoadBunk->updatePart(ui->dateEditBeg->date(), ui->dateEditEnd->date());
         emit sigPart();

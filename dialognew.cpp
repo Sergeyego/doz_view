@@ -10,7 +10,6 @@ DialogNew::DialogNew(QWidget *parent) :
     modelDozNew = new ModelDozNew(this);
     ui->tableViewCont->setModel(modelDozNew);
     ui->tableViewCont->verticalHeader()->setDefaultSectionSize(ui->tableViewCont->verticalHeader()->fontMetrics().height()*1.5);
-    ui->tableViewCont->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
     ui->dateEdit->setDate(QDate::currentDate());
     ui->timeEdit->setTime(QTime::currentTime());
@@ -18,14 +17,18 @@ DialogNew::DialogNew(QWidget *parent) :
     ui->lineEditMas->setText(QString("750"));
 
     ui->tableViewRcp->verticalHeader()->setDefaultSectionSize(ui->tableViewRcp->verticalHeader()->fontMetrics().height()*1.5);
-    ui->tableViewRcp->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     ui->tableViewRcp->setModel(Rels::instance()->relRcp->proxyModel());
-    Rels::instance()->relRcp->proxyModel()->setHeaderData(1,Qt::Horizontal,QString("Рецептура"));
+    Rels::instance()->relRcp->proxyModel()->setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Рецептура"));
     ui->tableViewRcp->setColumnHidden(0,true);
     for (int i=2; i<ui->tableViewRcp->model()->columnCount(); i++){
         ui->tableViewRcp->setColumnHidden(i,true);
     }
     ui->tableViewRcp->setColumnWidth(1,150);
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    ui->tableViewCont->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    ui->tableViewRcp->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+#endif
 
     connect(ui->pushButtonCansel,SIGNAL(clicked(bool)),this,SLOT(close()));
     connect(ui->pushButtonOk,SIGNAL(clicked(bool)),this,SLOT(writeRcp()));

@@ -40,7 +40,7 @@ QVariant DbTableModel::data(const QModelIndex &index, int role) const
                 } else if (type==QMetaType::Int) {
                     value=(origVal.isNull() || origVal.toString().isEmpty())? QString("") : QLocale().toString(origVal.toInt());
                 } else if (type==QMetaType::Bool){
-                    value=origVal.toBool()? QString(tr("Да")) : QString(tr("Нет"));
+                    value=origVal.toBool()? QString(QString::fromUtf8("Да")) : QString(QString::fromUtf8("Нет"));
                 } else {
                     value=origVal;
                 }
@@ -151,8 +151,8 @@ bool DbTableModel::removeRow(int row, const QModelIndex& parent)
     QString dat;
     for(int i=0; i<columnCount(); i++) dat+=data(this->index(row,i)).toString()+", ";
     dat.truncate(dat.count()-2);
-    int n=QMessageBox::question(NULL,tr("Подтвердите удаление"),
-                                tr("Подтветждаете удаление ")+dat+tr("?"),QMessageBox::Yes| QMessageBox::No);
+    int n=QMessageBox::question(NULL,QString::fromUtf8("Подтвердите удаление"),
+                                QString::fromUtf8("Подтветждаете удаление ")+dat+QString::fromUtf8("?"),QMessageBox::Yes| QMessageBox::No);
     bool ok=false;
     if (n==QMessageBox::Yes) {
         if (deleteDb(row)) {

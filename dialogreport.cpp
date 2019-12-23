@@ -21,8 +21,8 @@ DialogReport::~DialogReport()
 
 void DialogReport::refresh(QDate begDate, QDate endDate, bool byPart)
 {
-    header=QString("Расход компонентов на линии дозировки с %1 по %2 ").arg(begDate.toString("dd.MM.yy")).arg(endDate.toString("dd.MM.yy"));
-    header+=byPart? QString("по партиям") : QString("без партий");
+    header=QString::fromUtf8("Расход компонентов на линии дозировки с %1 по %2 ").arg(begDate.toString("dd.MM.yy")).arg(endDate.toString("dd.MM.yy"));
+    header+=byPart? QString::fromUtf8("по партиям") : QString::fromUtf8("без партий");
     ui->label->setText(header);
     modelReport->refresh(begDate,endDate,byPart);
     ui->tableView->resizeToContents();

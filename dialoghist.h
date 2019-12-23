@@ -5,6 +5,7 @@
 #include <QList>
 #include "rels.h"
 #include "modeldoz.h"
+#include <QCalendarWidget>
 
 namespace Ui {
 class DialogHist;

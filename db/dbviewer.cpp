@@ -7,10 +7,13 @@ DbViewer::DbViewer(QWidget *parent) :
     menuEnabled=true;
     verticalHeader()->setDefaultSectionSize(verticalHeader()->fontMetrics().height()*1.5);
     verticalHeader()->setFixedWidth(verticalHeader()->fontMetrics().height()*1.2);
-    verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
 
-    updAct = new QAction(tr("Обновить"),this);
-    removeAct = new QAction(tr("Удалить"),this);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+    verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+#endif
+
+    updAct = new QAction(QString::fromUtf8("Обновить"),this);
+    removeAct = new QAction(QString::fromUtf8("Удалить"),this);
     this->setAutoScroll(true);
     this->setItemDelegate(new DbDelegate(this));
     writeOk=true;

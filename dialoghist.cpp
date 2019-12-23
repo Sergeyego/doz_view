@@ -7,12 +7,13 @@ DialogHist::DialogHist(QWidget *parent) :
 {
     ui->setupUi(this);
     ui->dateTimeEdit->setDate(QDate::currentDate().addDays(-365));
+    ui->dateTimeEdit->calendarWidget()->setFirstDayOfWeek(Qt::Monday);
 
     modelHist = new ModelHist(this);
     ui->tableViewHist->setModel(modelHist);
 
     ui->tableViewMatr->setModel(Rels::instance()->relComp->model());
-    ui->tableViewMatr->model()->setHeaderData(1,Qt::Horizontal,QString("Компонент"));
+    ui->tableViewMatr->model()->setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Компонент"));
     ui->tableViewMatr->setColumnHidden(0,true);
     ui->tableViewMatr->resizeToContents();
 

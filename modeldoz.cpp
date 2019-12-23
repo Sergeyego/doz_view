@@ -30,7 +30,7 @@ QVariant ModelDoz::data(const QModelIndex &index, int role) const
         if (role==Qt::CheckStateRole){
             return DbTableModel::data(index,Qt::EditRole).toBool() ? Qt::Checked : Qt::Unchecked;
         } else if (role==Qt::DisplayRole){
-            return DbTableModel::data(index,Qt::EditRole).toBool() ? QString("Да") : QString("Нет");
+            return DbTableModel::data(index,Qt::EditRole).toBool() ? QString::fromUtf8("Да") : QString::fromUtf8("Нет");
         } else if (role==Qt::TextAlignmentRole){
             return int(Qt::AlignLeft | Qt::AlignVCenter);
         }
@@ -127,10 +127,10 @@ void ModelDozNew::refresh(double mas, QDateTime datetime, int id_rcp)
         clear();
     } else {
         setQuery(query);
-        setHeaderData(0,Qt::Horizontal,QString("Компонент"));
-        setHeaderData(1,Qt::Horizontal,QString("К-во, кг"));
-        setHeaderData(2,Qt::Horizontal,QString("Бункер"));
-        setHeaderData(3,Qt::Horizontal,QString("Партия"));
+        setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Компонент"));
+        setHeaderData(1,Qt::Horizontal,QString::fromUtf8("К-во, кг"));
+        setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Бункер"));
+        setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Партия"));
     }
 }
 
@@ -205,7 +205,7 @@ QVariant ModelReport::data(const QModelIndex &item, int role) const
     if (item.row()==QSqlQueryModel::rowCount()){
         if (role==Qt::EditRole || role==Qt::DisplayRole){
             if (item.column()==0){
-                return QString("Итого");
+                return QString::fromUtf8("Итого");
             } else if (item.column()==2 || item.column()==3){
                 double sum = (item.column()==2) ? sumrcp : sumfact;
                 if (role==Qt::EditRole){
@@ -259,10 +259,10 @@ void ModelReport::refresh(QDate beg, QDate end, bool by_part)
     sumfact=0.0;
     if (query.exec()){
         setQuery(query);
-        setHeaderData(0,Qt::Horizontal,QString("Компонент"));
-        setHeaderData(1,Qt::Horizontal,QString("Партия"));
-        setHeaderData(2,Qt::Horizontal,QString("Рецепт., кг"));
-        setHeaderData(3,Qt::Horizontal,QString("Фактич., кг"));
+        setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Компонент"));
+        setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Партия"));
+        setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Рецепт., кг"));
+        setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Фактич., кг"));
         for (int i=0; i<QSqlQueryModel::rowCount(); i++){
             QModelIndex ircp=this->index(i,2);
             QModelIndex ifact=this->index(i,3);
@@ -309,11 +309,11 @@ void ModelCurrentBunk::refresh(QDateTime datetime)
     query.bindValue(":dt",datetime);
     if (query.exec()){
         setQuery(query);
-        setHeaderData(0,Qt::Horizontal,QString("Бункер"));
-        setHeaderData(1,Qt::Horizontal,QString("Компонент"));
-        setHeaderData(2,Qt::Horizontal,QString("Партия"));
-        setHeaderData(3,Qt::Horizontal,QString("Группа"));
-        setHeaderData(4,Qt::Horizontal,QString("Дата засыпки"));
+        setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Бункер"));
+        setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Компонент"));
+        setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Партия"));
+        setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Группа"));
+        setHeaderData(4,Qt::Horizontal,QString::fromUtf8("Дата засыпки"));
     } else {
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
@@ -379,10 +379,10 @@ void ModelCurrentPart::refresh(QDateTime datetime)
     query.bindValue(":dt",datetime);
     if (query.exec()){
         setQuery(query);
-        setHeaderData(0,Qt::Horizontal,QString("Компонент"));
-        setHeaderData(1,Qt::Horizontal,QString("Партия"));
-        setHeaderData(2,Qt::Horizontal,QString("Группа"));
-        setHeaderData(3,Qt::Horizontal,QString("Дата засыпки"));
+        setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Компонент"));
+        setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Партия"));
+        setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Группа"));
+        setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Дата засыпки"));
     } else {
         clear();
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
@@ -414,10 +414,10 @@ void ModelHist::refresh(int id_matr, QDateTime tm)
     query.bindValue(":id_matr",id_matr);
     if (query.exec()){
         setQuery(query);
-        setHeaderData(0,Qt::Horizontal,QString("Дата засыпки"));
-        setHeaderData(1,Qt::Horizontal,QString("Бункер"));
-        setHeaderData(2,Qt::Horizontal,QString("Партия"));
-        setHeaderData(3,Qt::Horizontal,QString("Группа"));
+        setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Дата засыпки"));
+        setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Бункер"));
+        setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Партия"));
+        setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Группа"));
         emit sigRefresh();
     } else {
         clear();
@@ -427,9 +427,9 @@ void ModelHist::refresh(int id_matr, QDateTime tm)
 
 ModelGroupEl::ModelGroupEl(QObject *parent) : DbTableModel("elrtr",parent)
 {
-    addColumn("id",QString("id"));
-    addColumn("marka",QString("Марка"));
-    addColumn("id_vid_doz",QString("Группа"),NULL,Rels::instance()->relGrp);
+    addColumn("id",QString::fromUtf8("id"));
+    addColumn("marka",QString::fromUtf8("Марка"));
+    addColumn("id_vid_doz",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
     setSort("elrtr.marka");
     setFilter("elrtr.id<>0");
     setColumnFlags(0,Qt::ItemIsSelectable  | Qt::ItemIsEnabled);
