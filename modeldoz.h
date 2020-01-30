@@ -63,14 +63,6 @@ public:
     void refresh(QDateTime datetime);
 };
 
-class ModelCurrentPart: public QSqlQueryModel
-{
-public:
-    ModelCurrentPart(QObject *parent=0);
-    QVariant data(const QModelIndex &item, int role) const;
-    void refresh(QDateTime datetime);
-};
-
 class ModelLoadBunk : public DbTableModel
 {
 public:

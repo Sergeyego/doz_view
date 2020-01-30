@@ -14,10 +14,19 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->pushButtonPart->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
 
     modelCurrentBunk = new ModelCurrentBunk(this);
-    ui->tableViewCurrent->setModel(modelCurrentBunk);
 
-    modelCurrentPart = new ModelCurrentPart(this);
-    ui->tableViewComp->setModel(modelCurrentPart);
+    modelBunk = new QSortFilterProxyModel(this);
+    modelBunk->setSourceModel(modelCurrentBunk);
+    modelBunk->setFilterKeyColumn(5);
+    modelBunk->setFilterFixedString("0");
+
+    modelPart = new QSortFilterProxyModel(this);
+    modelPart->setSourceModel(modelCurrentBunk);
+    modelPart->setFilterKeyColumn(5);
+    modelPart->setFilterFixedString("1");
+
+    ui->tableViewCurrent->setModel(modelBunk);
+    ui->tableViewComp->setModel(modelPart);
     updCurrentTime();
 
     ui->dateEditBeg->setDate(QDate::currentDate().addDays(-QDate::currentDate().day()+1));
@@ -49,9 +58,11 @@ DialogBunk::~DialogBunk()
 
 void DialogBunk::updCurrent()
 {
-    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime());    
+    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime());
+    ui->tableViewCurrent->setColumnHidden(5,true);
+    ui->tableViewComp->setColumnHidden(0,true);
+    ui->tableViewComp->setColumnHidden(5,true);
     ui->tableViewCurrent->resizeToContents();
-    modelCurrentPart->refresh(ui->dateTimeEdit->dateTime());
     ui->tableViewComp->resizeToContents();
 }
 
@@ -63,7 +74,12 @@ void DialogBunk::updCurrentTime()
 
 void DialogBunk::save()
 {
-    ui->tableViewCurrent->save(QString::fromUtf8("Состояние бункеров на ")+ui->dateTimeEdit->dateTime().toString("dd.MM.yy HH.mm"));
+    TableView v;
+    v.setModel(modelCurrentBunk);
+    v.setColumnHidden(5,true);
+    v.verticalHeader()->setVisible(false);
+    v.resizeToContents();
+    v.save(QString::fromUtf8("Состояние бункеров на ")+ui->dateTimeEdit->dateTime().toString("dd.MM.yy HH.mm"));
 }
 
 void DialogBunk::updLoad()

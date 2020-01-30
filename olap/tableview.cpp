@@ -73,51 +73,64 @@ void TableView::save(QString fnam)
 
         sh->blank(1,0,fmt);
 
+        int v=verticalHeader()->isVisible() ? 1 : 0;
+
+        int m=0;
         for(i=0;i<cols;i++){
-            hCubeell=this->model()->headerData(i,Qt::Horizontal).toString();
-            hCubeell.replace(QChar('\n'),QChar('\n'));
-            sh->label(1,i+1,hCubeell.toStdWString(),fmt);
-            cref=sh->FindCellOrMakeBlank(1,i+1);
-            cref->fontbold(BOLDNESS_DOUBLE);
-            cref->halign(HALIGN_JUSTIFY);
-            sh->colwidth(i+1,(this->columnWidth(i)*38));
+            if (!isColumnHidden(i)) {
+                hCubeell=this->model()->headerData(i,Qt::Horizontal).toString();
+                hCubeell.replace(QChar('\n'),QChar('\n'));
+                sh->label(1,m+v,hCubeell.toStdWString(),fmt);
+                cref=sh->FindCellOrMakeBlank(1,m+v);
+                cref->fontbold(BOLDNESS_DOUBLE);
+                cref->halign(HALIGN_JUSTIFY);
+                sh->colwidth(m+v,(this->columnWidth(i)*38));
+                m++;
+            }
         }
 
-        for(j=0;j<rows;j++){
-            sh->label(j+2,0,this->model()->headerData(j,Qt::Vertical).toString().toStdWString(),fmt);
-            cref=sh->FindCellOrMakeBlank(j+2,0);
-            cref->halign(HALIGN_LEFT);
+        if (verticalHeader()->isVisible()){
+            for(j=0;j<rows;j++){
+                sh->label(j+2,0,this->model()->headerData(j,Qt::Vertical).toString().toStdWString(),fmt);
+                cref=sh->FindCellOrMakeBlank(j+2,0);
+                cref->halign(HALIGN_LEFT);
+            }
         }
 
-        for (i=0;i<rows;i++)
+        for (i=0;i<rows;i++){
+            m=0;
             for(j=0;j<cols;j++){
-                xf_t * pxf = wb.xformat();
-                pxf->SetBorderStyle(BORDER_LEFT, BORDER_THIN);
-                pxf->SetBorderStyle(BORDER_RIGHT, BORDER_THIN);
-                pxf->SetBorderStyle(BORDER_TOP, BORDER_THIN);
-                pxf->SetBorderStyle(BORDER_BOTTOM, BORDER_THIN);
-                QVariant vdisp=this->model()->data(this->model()->index(i,j),Qt::DisplayRole);
-                QVariant vedt=this->model()->data(this->model()->index(i,j),Qt::EditRole);
+                if (!isColumnHidden(j)) {
+                    xf_t * pxf = wb.xformat();
+                    pxf->SetBorderStyle(BORDER_LEFT, BORDER_THIN);
+                    pxf->SetBorderStyle(BORDER_RIGHT, BORDER_THIN);
+                    pxf->SetBorderStyle(BORDER_TOP, BORDER_THIN);
+                    pxf->SetBorderStyle(BORDER_BOTTOM, BORDER_THIN);
+                    QVariant vdisp=this->model()->data(this->model()->index(i,j),Qt::DisplayRole);
+                    QVariant vedt=this->model()->data(this->model()->index(i,j),Qt::EditRole);
 
-                QString tname=vedt.typeName();
+                    QString tname=vedt.typeName();
 
-                if (tname==QString("int")){
-                    pxf->SetFormat(FMT_NUMBER3);
-                } else if (tname==QString("double")){
-                    pxf->SetFormat(FMT_NUMBER4);
-                } else {
-                    pxf->SetFormat(FMT_GENERAL);
-                }
-                if (!vdisp.toString().isEmpty()){
-                    if (tname==QString("double") || tname==QString("int")){
-                        sh->number(i+2,j+1,vedt.toDouble(),pxf);
+                    if (tname==QString("int")){
+                        pxf->SetFormat(FMT_NUMBER3);
+                    } else if (tname==QString("double")){
+                        pxf->SetFormat(FMT_NUMBER4);
                     } else {
-                        sh->label(i+2,j+1,vdisp.toString().toStdWString(),pxf);
+                        pxf->SetFormat(FMT_GENERAL);
                     }
-                } else {
-                    sh->blank(i+2,j+1,pxf);
+                    if (!vdisp.toString().isEmpty()){
+                        if (tname==QString("double") || tname==QString("int")){
+                            sh->number(i+2,m+v,vedt.toDouble(),pxf);
+                        } else {
+                            sh->label(i+2,m+v,vdisp.toString().toStdWString(),pxf);
+                        }
+                    } else {
+                        sh->blank(i+2,m+v,pxf);
+                    }
+                    m++;
                 }
             }
+        }
 
         QSettings settings("szsm", QApplication::applicationName());
         QDir dir(settings.value("savePath",QDir::homePath()).toString());

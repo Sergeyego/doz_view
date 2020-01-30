@@ -2,6 +2,7 @@
 #define DIALOGBUNK_H
 
 #include <QDialog>
+#include <QSortFilterProxyModel>
 #include "modeldoz.h"
 
 namespace Ui {
@@ -19,8 +20,9 @@ public:
 private:
     Ui::DialogBunk *ui;
     ModelCurrentBunk *modelCurrentBunk;
-    ModelCurrentPart *modelCurrentPart;
     ModelLoadBunk *modelLoadBunk;
+    QSortFilterProxyModel *modelBunk;
+    QSortFilterProxyModel *modelPart;
 
 private slots:
     void updCurrent();

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>950</width>
-    <height>700</height>
+    <width>948</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -75,7 +75,7 @@
       <widget class="TableView" name="tableViewCurrent">
        <property name="minimumSize">
         <size>
-         <width>500</width>
+         <width>480</width>
          <height>0</height>
         </size>
        </property>
