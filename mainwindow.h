@@ -12,6 +12,7 @@
 #include "dialoghist.h"
 #include "dialoggroup.h"
 #include "olap/tableview.h"
+#include "db/dbsave.h"
 
 namespace Ui {
 class MainWindow;

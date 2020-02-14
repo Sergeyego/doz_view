@@ -42,7 +42,8 @@ SOURCES += \
     dialogreport.cpp \
     dialogbunk.cpp \
     dialoghist.cpp \
-    dialoggroup.cpp
+    dialoggroup.cpp \
+    db/dbsave.cpp
 
 HEADERS += \
         mainwindow.h \
@@ -62,7 +63,8 @@ HEADERS += \
     dialogreport.h \
     dialogbunk.h \
     dialoghist.h \
-    dialoggroup.h
+    dialoggroup.h \
+    db/dbsave.h
 
 FORMS += \
         mainwindow.ui \

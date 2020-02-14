@@ -1,7 +1,7 @@
-#ifndef TABLEVIEW_H
-#define TABLEVIEW_H
+#ifndef DBSAVE_H
+#define DBSAVE_H
 
-#include <QWidget>
+#include <QObject>
 #include <QTableView>
 #include <QHeaderView>
 #include <xlslib.h>
@@ -10,20 +10,22 @@
 #include <QSettings>
 #include <QApplication>
 #include <QDebug>
-#include "../db/dbsave.h"
+#include "dbtablemodel.h"
 
 using namespace xlslib_core;
 
-class TableView : public QTableView
+class DbSave : public QObject
 {
-        Q_OBJECT
+    Q_OBJECT
 public:
+    explicit DbSave(QTableView *v, QObject *parent = 0);
+private:
+    QTableView *viewer;
 
-    TableView(QWidget *parent=0);
+signals:
 
 public slots:
-    void resizeToContents();
     void save(QString fnam);
 };
 
-#endif // TABLEVIEW_H
+#endif // DBSAVE_H

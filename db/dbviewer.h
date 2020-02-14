@@ -22,7 +22,6 @@ public:
     DbViewer(QWidget *parent = 0);
     void setModel(QAbstractItemModel *model);
     void setColumnsWidth(QVector<int> width);
-    void save(QString title);
 
 protected:
     virtual void keyPressEvent (QKeyEvent * e );

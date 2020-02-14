@@ -198,6 +198,9 @@ void MainWindow::saveFile()
 {
     int row=ui->tableViewDoz->currentIndex().row();
     QString rcp=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,3),Qt::DisplayRole).toString();
-    ui->tableViewData->save(rcp);
+    QString dat=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,1),Qt::EditRole).toDate().toString("dd.MM.yy");
+    QString tim=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,2),Qt::EditRole).toTime().toString("hh:mm");
+    DbSave s(ui->tableViewData);
+    s.save(rcp+" "+dat+" "+tim);
 }
 
