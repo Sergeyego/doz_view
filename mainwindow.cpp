@@ -200,7 +200,8 @@ void MainWindow::saveFile()
     QString rcp=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,3),Qt::DisplayRole).toString();
     QString dat=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,1),Qt::EditRole).toDate().toString("dd.MM.yy");
     QString tim=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,2),Qt::EditRole).toTime().toString("hh:mm");
+    QString kvo=QString::number(ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,4),Qt::EditRole).toDouble());
     DbSave s(ui->tableViewData);
-    s.save(rcp+" "+dat+" "+tim);
+    s.save(rcp+" "+dat+" "+tim+" "+kvo+QString::fromUtf8(" кг"));
 }
 
