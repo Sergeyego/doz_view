@@ -8,6 +8,10 @@
 #include <QHeaderView>
 #include <QAction>
 #include <QMenu>
+#include <xlslib.h>
+#include <QFileDialog>
+
+using namespace xlslib_core;
 
 class QMenu;
 class QAction;
@@ -18,6 +22,7 @@ public:
     DbViewer(QWidget *parent = 0);
     void setModel(QAbstractItemModel *model);
     void setColumnsWidth(QVector<int> width);
+    void save(QString title);
 
 protected:
     virtual void keyPressEvent (QKeyEvent * e );

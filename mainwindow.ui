@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>992</width>
-    <height>692</height>
+    <width>990</width>
+    <height>690</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -253,6 +253,28 @@
              </widget>
             </item>
             <item>
+             <widget class="QToolButton" name="toolButtonSave">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Minimum" vsizetype="Maximum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="text">
+               <string>Сохранить в файл</string>
+              </property>
+              <property name="toolButtonStyle">
+               <enum>Qt::ToolButtonTextBesideIcon</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <spacer name="verticalSpacer_2">
               <property name="orientation">
                <enum>Qt::Vertical</enum>
@@ -381,7 +403,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>992</width>
+     <width>990</width>
      <height>24</height>
     </rect>
    </property>
@@ -394,6 +416,7 @@
     <addaction name="actionNew"/>
     <addaction name="actionUpdate"/>
     <addaction name="actionRstPart"/>
+    <addaction name="actionSave"/>
    </widget>
    <widget class="QMenu" name="menu_2">
     <property name="title">
@@ -497,6 +520,14 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+G</string>
+   </property>
+  </action>
+  <action name="actionSave">
+   <property name="text">
+    <string>Сохранить в файл</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
  </widget>

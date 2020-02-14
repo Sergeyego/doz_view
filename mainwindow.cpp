@@ -70,6 +70,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->actionRstPart->setIcon(this->style()->standardIcon(QStyle::SP_DialogResetButton));
 
+    ui->actionSave->setIcon(this->style()->standardIcon(QStyle::SP_DialogSaveButton));
+    ui->toolButtonSave->setDefaultAction(ui->actionSave);
+
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),this,SLOT(updDoz()));
     connect(ui->actionUpdate,SIGNAL(triggered(bool)),Rels::instance(),SLOT(refresh()));
     connect(ui->actionDel,SIGNAL(triggered(bool)),this,SLOT(delDoz()));
@@ -81,6 +84,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->actionRstPart,SIGNAL(triggered(bool)),this,SLOT(resetEdtPart()));
     connect(ui->actionHist,SIGNAL(triggered(bool)),this,SLOT(histLoad()));
     connect(ui->actionGrp,SIGNAL(triggered(bool)),this,SLOT(groupEl()));
+    connect(ui->actionSave,SIGNAL(triggered(bool)),this,SLOT(saveFile()));
 
     connect(ui->tableViewDoz->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(updDozData(QModelIndex)));
     connect(dialogBunk,SIGNAL(sigPart()),modelDozData,SLOT(select()));
@@ -188,5 +192,12 @@ void MainWindow::groupEl()
 {
     DialogGroup g;
     g.exec();
+}
+
+void MainWindow::saveFile()
+{
+    int row=ui->tableViewDoz->currentIndex().row();
+    QString rcp=ui->tableViewDoz->model()->data(ui->tableViewDoz->model()->index(row,3),Qt::DisplayRole).toString();
+    ui->tableViewData->save(rcp);
 }
 

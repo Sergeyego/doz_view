@@ -11,6 +11,7 @@
 #include "olap/cubewidget.h"
 #include "dialoghist.h"
 #include "dialoggroup.h"
+#include "olap/tableview.h"
 
 namespace Ui {
 class MainWindow;
@@ -47,6 +48,7 @@ private slots:
     void resetEdtPart();
     void histLoad();
     void groupEl();
+    void saveFile();
 };
 
 #endif // MAINWINDOW_H
