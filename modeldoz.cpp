@@ -320,9 +320,11 @@ ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
     addColumn("id_comp",QString::fromUtf8("Компонент"),NULL,Rels::instance()->relComp);
     addColumn("parti",QString::fromUtf8("Партия"));
     addColumn("id_grp",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
+    addColumn("id_op",QString::fromUtf8("Операция"),NULL,Rels::instance()->relOp);
     setSort("bunk_comp.dat, bunk_comp.tm");
 
     setDefaultValue(2,QTime::currentTime());
+    setDefaultValue(7,1);
 }
 
 void ModelLoadBunk::refresh(QDate beg, QDate end)
@@ -359,10 +361,11 @@ QVariant ModelHist::data(const QModelIndex &item, int role) const
 void ModelHist::refresh(int id_matr, QDateTime tm)
 {
     QSqlQuery query;
-    query.prepare("select bc.dtm as dtm, b.numer, bc.parti, tp.nam as typ from bunk_comp as bc "
+    query.prepare("select bc.dtm as dtm, b.numer, bc.parti, tp.nam as typ, bo.nam from bunk_comp as bc "
                   "inner join bunk as b on b.id=bc.id_bunk "
                   "inner join matr as m on m.id=bc.id_comp "
                   "inner join el_types as tp on tp.id=bc.id_grp "
+                  "inner join bunk_op as bo on bo.id=bc.id_op "
                   "where bc.dtm>=:dt and bc.id_comp= :id_matr "
                   "order by dtm desc");
     query.bindValue(":dt",tm);
@@ -373,6 +376,7 @@ void ModelHist::refresh(int id_matr, QDateTime tm)
         setHeaderData(1,Qt::Horizontal,QString::fromUtf8("Бункер"));
         setHeaderData(2,Qt::Horizontal,QString::fromUtf8("Партия"));
         setHeaderData(3,Qt::Horizontal,QString::fromUtf8("Группа"));
+        setHeaderData(4,Qt::Horizontal,QString::fromUtf8("Операция"));
         emit sigRefresh();
     } else {
         clear();

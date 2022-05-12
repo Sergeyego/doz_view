@@ -15,6 +15,7 @@ Rels::Rels(QObject *parent) : QObject(parent)
     relComp = new DbRelation(QString("select id, nam from matr order by nam"),0,1,this);
     relBunk = new DbRelation(QString("select id, numer, is_tiny from bunk where id=0 or is_tiny=0 order by is_tiny, numer"),0,1,this);
     relGrp = new DbRelation(QString("select id, nam from el_types order by nam"),0,1,this);
+    relOp = new DbRelation(QString("select id, nam from bunk_op order by id"),0,1,this);
 
     relRcp->proxyModel()->setFilterKeyColumn(2);
     relRcp->proxyModel()->setFilterFixedString("1");
@@ -27,5 +28,6 @@ void Rels::refresh()
     relComp->refreshModel();
     relBunk->refreshModel();
     relGrp->refreshModel();
+    relOp->refreshModel();
     emit sigRefresh();
 }

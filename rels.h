@@ -13,6 +13,7 @@ public:
     DbRelation *relComp;
     DbRelation *relBunk;
     DbRelation *relGrp;
+    DbRelation *relOp;
 
 protected:
     explicit Rels(QObject *parent = 0);

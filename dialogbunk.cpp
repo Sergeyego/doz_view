@@ -41,7 +41,8 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->tableViewLoad->setColumnWidth(3,80);
     ui->tableViewLoad->setColumnWidth(4,190);
     ui->tableViewLoad->setColumnWidth(5,70);
-    ui->tableViewLoad->setColumnWidth(6,90);
+    ui->tableViewLoad->setColumnWidth(6,120);
+    ui->tableViewLoad->setColumnWidth(7,100);
 
     connect(ui->pushButtonCurrentTime,SIGNAL(clicked(bool)),this,SLOT(updCurrentTime()));
     connect(ui->pushButtonUpdCurrent,SIGNAL(clicked(bool)),this,SLOT(updCurrent()));
