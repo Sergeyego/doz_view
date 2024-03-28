@@ -30,7 +30,7 @@ class ModelDozNew : public QSqlQueryModel
 {
 public:
     ModelDozNew(QObject *parent=0);
-    void refresh(double mas, QDateTime datetime, int id_rcp);
+    void refresh(double mas, QDateTime datetime, int id_rcp, int id_cex);
     QVariant data(const QModelIndex &item, int role) const;
     bool writeRcp();
     int getNewId();
@@ -60,14 +60,14 @@ class ModelCurrentBunk: public QSqlQueryModel
 public:
     ModelCurrentBunk(QObject *parent=0);
     QVariant data(const QModelIndex &item, int role) const;
-    void refresh(QDateTime datetime);
+    void refresh(QDateTime datetime, int id_cex);
 };
 
 class ModelLoadBunk : public DbTableModel
 {
 public:
     ModelLoadBunk(QObject *parent=0);
-    void refresh(QDate beg, QDate end);
+    void refresh(QDate beg, QDate end, int id_cex);
     bool updatePart(QDate beg, QDate end);
 };
 
@@ -77,7 +77,7 @@ class ModelHist: public QSqlQueryModel
 public:
     ModelHist(QObject *parent=0);
     QVariant data(const QModelIndex &item, int role) const;
-    void refresh(int id_matr, QDateTime tm);
+    void refresh(int id_matr, QDateTime tm, int id_cex);
 signals:
     void sigRefresh();
 };

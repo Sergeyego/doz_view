@@ -112,16 +112,17 @@ ModelDozNew::ModelDozNew(QObject *parent) : QSqlQueryModel(parent)
     newIdDoz=1;
 }
 
-void ModelDozNew::refresh(double mas, QDateTime datetime, int id_rcp)
+void ModelDozNew::refresh(double mas, QDateTime datetime, int id_rcp, int id_cex)
 {
     currentIdRcp=id_rcp;
     currentDateTime=datetime;
     currentMas=mas;
     QSqlQuery query;
-    query.prepare("select nam, kvo, nbunk, parti, id_matr, id_bunk from calc_doz(:mas, :dt, :rcp)");
+    query.prepare("select nam, kvo, nbunk, parti, id_matr, id_bunk from calc_doz_new(:mas, :dt, :rcp, :id_cex)");
     query.bindValue(":mas",mas);
     query.bindValue(":dt",datetime);
     query.bindValue(":rcp",id_rcp);
+    query.bindValue(":id_cex",id_cex);
     if (!query.exec()){
         QMessageBox::critical(NULL,tr("Error"),query.lastError().text(),QMessageBox::Cancel);
         clear();
@@ -293,11 +294,12 @@ QVariant ModelCurrentBunk::data(const QModelIndex &item, int role) const
     return QSqlQueryModel::data(item,role);
 }
 
-void ModelCurrentBunk::refresh(QDateTime datetime)
+void ModelCurrentBunk::refresh(QDateTime datetime, int id_cex)
 {
     QSqlQuery query;
-    query.prepare("select num, nam, parti, typ, dtm, is_tiny from calc_doz_stat(:dt) order by num, nam");
+    query.prepare("select num, nam, parti, typ, dtm, is_tiny from calc_doz_stat_new(:dt, :id_cex) order by num, nam");
     query.bindValue(":dt",datetime);
+    query.bindValue(":id_cex",id_cex);
     if (query.exec()){
         setQuery(query);
         setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Бункер"));
@@ -321,15 +323,17 @@ ModelLoadBunk::ModelLoadBunk(QObject *parent) : DbTableModel("bunk_comp",parent)
     addColumn("parti",QString::fromUtf8("Партия"));
     addColumn("id_grp",QString::fromUtf8("Группа"),NULL,Rels::instance()->relGrp);
     addColumn("id_op",QString::fromUtf8("Операция"),NULL,Rels::instance()->relOp);
+    addColumn("id_cex",QString::fromUtf8("Цех"),NULL,Rels::instance()->relCex);
     setSort("bunk_comp.dat, bunk_comp.tm");
 
     setDefaultValue(2,QTime::currentTime());
     setDefaultValue(7,1);
 }
 
-void ModelLoadBunk::refresh(QDate beg, QDate end)
+void ModelLoadBunk::refresh(QDate beg, QDate end, int id_cex)
 {
-    setFilter("bunk_comp.dat between '"+beg.toString("yyyy-MM-dd")+"' and '"+end.toString("yyyy-MM-dd")+"'");
+    setDefaultValue(8,id_cex);
+    setFilter("bunk_comp.dat between '"+beg.toString("yyyy-MM-dd")+"' and '"+end.toString("yyyy-MM-dd")+"' and bunk_comp.id_cex = "+QString::number(id_cex));
     select();
 }
 
@@ -358,7 +362,7 @@ QVariant ModelHist::data(const QModelIndex &item, int role) const
     return QSqlQueryModel::data(item,role);
 }
 
-void ModelHist::refresh(int id_matr, QDateTime tm)
+void ModelHist::refresh(int id_matr, QDateTime tm, int id_cex)
 {
     QSqlQuery query;
     query.prepare("select bc.dtm as dtm, b.numer, bc.parti, tp.nam as typ, bo.nam from bunk_comp as bc "
@@ -366,10 +370,11 @@ void ModelHist::refresh(int id_matr, QDateTime tm)
                   "inner join matr as m on m.id=bc.id_comp "
                   "inner join el_types as tp on tp.id=bc.id_grp "
                   "inner join bunk_op as bo on bo.id=bc.id_op "
-                  "where bc.dtm>=:dt and bc.id_comp= :id_matr "
+                  "where bc.dtm >= :dt and bc.id_comp = :id_matr and bc.id_cex= :id_cex "
                   "order by dtm desc");
     query.bindValue(":dt",tm);
     query.bindValue(":id_matr",id_matr);
+    query.bindValue(":id_cex",id_cex);
     if (query.exec()){
         setQuery(query);
         setHeaderData(0,Qt::Horizontal,QString::fromUtf8("Дата засыпки"));

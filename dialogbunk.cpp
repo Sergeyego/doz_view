@@ -13,6 +13,9 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->pushButtonUpdCurrent->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
     ui->pushButtonPart->setIcon(this->style()->standardIcon(QStyle::SP_BrowserReload));
 
+    ui->comboBoxCex->setModel(Rels::instance()->relCex->model());
+    ui->comboBoxCex->setModelColumn(1);
+
     modelCurrentBunk = new ModelCurrentBunk(this);
 
     modelBunk = new QSortFilterProxyModel(this);
@@ -43,6 +46,8 @@ DialogBunk::DialogBunk(QWidget *parent) :
     ui->tableViewLoad->setColumnWidth(5,70);
     ui->tableViewLoad->setColumnWidth(6,120);
     ui->tableViewLoad->setColumnWidth(7,100);
+    //ui->tableViewLoad->setColumnWidth(8,120);
+    ui->tableViewLoad->setColumnHidden(8,true);
 
     connect(ui->pushButtonCurrentTime,SIGNAL(clicked(bool)),this,SLOT(updCurrentTime()));
     connect(ui->pushButtonUpdCurrent,SIGNAL(clicked(bool)),this,SLOT(updCurrent()));
@@ -50,6 +55,7 @@ DialogBunk::DialogBunk(QWidget *parent) :
     connect(ui->pushButtonUpdLoad,SIGNAL(clicked(bool)),this,SLOT(updLoad()));
     connect(ui->pushButtonPart,SIGNAL(clicked(bool)),this,SLOT(calcPart()));
     connect(modelLoadBunk,SIGNAL(sigUpd()),this,SLOT(updCurrent()));
+    connect(ui->comboBoxCex,SIGNAL(currentIndexChanged(QString)),this,SLOT(updLoad()));
 }
 
 DialogBunk::~DialogBunk()
@@ -59,7 +65,8 @@ DialogBunk::~DialogBunk()
 
 void DialogBunk::updCurrent()
 {
-    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime());
+    int id_cex=ui->comboBoxCex->model()->data(ui->comboBoxCex->model()->index(ui->comboBoxCex->currentIndex(),0),Qt::EditRole).toInt();
+    modelCurrentBunk->refresh(ui->dateTimeEdit->dateTime(),id_cex);
     ui->tableViewCurrent->setColumnHidden(5,true);
     ui->tableViewComp->setColumnHidden(0,true);
     ui->tableViewComp->setColumnHidden(5,true);
@@ -85,7 +92,9 @@ void DialogBunk::save()
 
 void DialogBunk::updLoad()
 {
-    modelLoadBunk->refresh(ui->dateEditBeg->date(), ui->dateEditEnd->date());
+    int id_cex=ui->comboBoxCex->model()->data(ui->comboBoxCex->model()->index(ui->comboBoxCex->currentIndex(),0),Qt::EditRole).toInt();
+    modelLoadBunk->refresh(ui->dateEditBeg->date(), ui->dateEditEnd->date(),id_cex);
+    updCurrentTime();
 }
 
 void DialogBunk::calcPart()

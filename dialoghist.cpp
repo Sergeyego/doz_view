@@ -9,6 +9,9 @@ DialogHist::DialogHist(QWidget *parent) :
     ui->dateTimeEdit->setDate(QDate::currentDate().addDays(-365));
     ui->dateTimeEdit->calendarWidget()->setFirstDayOfWeek(Qt::Monday);
 
+    ui->comboBoxCex->setModel(Rels::instance()->relCex->model());
+    ui->comboBoxCex->setModelColumn(1);
+
     modelHist = new ModelHist(this);
     ui->tableViewHist->setModel(modelHist);
 
@@ -23,6 +26,7 @@ DialogHist::DialogHist(QWidget *parent) :
     connect(ui->tableViewMatr->selectionModel(),SIGNAL(currentRowChanged(QModelIndex,QModelIndex)),this,SLOT(updHist()));
     connect(ui->dateTimeEdit,SIGNAL(dateTimeChanged(QDateTime)),this,SLOT(updHist()));
     connect(modelHist,SIGNAL(sigRefresh()),ui->tableViewHist,SLOT(resizeToContents()));
+    connect(ui->comboBoxCex,SIGNAL(currentIndexChanged(int)),this,SLOT(updHist()));
 }
 
 DialogHist::~DialogHist()
@@ -34,5 +38,6 @@ void DialogHist::updHist()
 {
     QModelIndex indMatr=ui->tableViewMatr->model()->index(ui->tableViewMatr->currentIndex().row(),0);
     int id_matr=ui->tableViewMatr->model()->data(indMatr,Qt::EditRole).toInt();
-    modelHist->refresh(id_matr,ui->dateTimeEdit->dateTime());
+    int id_cex=ui->comboBoxCex->model()->data(ui->comboBoxCex->model()->index(ui->comboBoxCex->currentIndex(),0),Qt::EditRole).toInt();
+    modelHist->refresh(id_matr,ui->dateTimeEdit->dateTime(),id_cex);
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>878</width>
-    <height>648</height>
+    <width>876</width>
+    <height>646</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -86,6 +86,9 @@
          </item>
          <item>
           <widget class="QTimeEdit" name="timeEdit"/>
+         </item>
+         <item>
+          <widget class="QComboBox" name="comboBoxCex"/>
          </item>
          <item>
           <spacer name="horizontalSpacer">

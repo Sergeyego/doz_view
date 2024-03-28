@@ -11,6 +11,9 @@ DialogNew::DialogNew(QWidget *parent) :
     ui->tableViewCont->setModel(modelDozNew);
     ui->tableViewCont->verticalHeader()->setDefaultSectionSize(ui->tableViewCont->verticalHeader()->fontMetrics().height()*1.5);
 
+    ui->comboBoxCex->setModel(Rels::instance()->relCex->model());
+    ui->comboBoxCex->setModelColumn(1);
+
     ui->dateEdit->setDate(QDate::currentDate());
     ui->timeEdit->setTime(QTime::currentTime());
     ui->lineEditMas->setValidator(new QDoubleValidator(0,1000000,1,this));
@@ -47,6 +50,8 @@ int DialogNew::getNewId()
 
 void DialogNew::selectRcp()
 {
+    int id_cex=ui->comboBoxCex->model()->data(ui->comboBoxCex->model()->index(ui->comboBoxCex->currentIndex(),0),Qt::EditRole).toInt();
+
     QDateTime dt;
     dt.setDate(ui->dateEdit->date());
     dt.setTime(ui->timeEdit->time());
@@ -57,7 +62,7 @@ void DialogNew::selectRcp()
     int id_rcp=ui->tableViewRcp->model()->data(indexRcp,Qt::EditRole).toInt();
     ui->labelRcp->setText(ui->tableViewRcp->model()->data(indexNam,Qt::DisplayRole).toString());
 
-    modelDozNew->refresh(mas,dt,id_rcp);
+    modelDozNew->refresh(mas,dt,id_rcp,id_cex);
     ui->tableViewCont->setColumnWidth(0,170);
     ui->tableViewCont->setColumnWidth(1,70);
     ui->tableViewCont->setColumnWidth(2,70);
@@ -71,6 +76,7 @@ void DialogNew::selectRcp()
     ui->lineEditMas->setEnabled(false);
     ui->dateEdit->setEnabled(false);
     ui->timeEdit->setEnabled(false);
+    ui->comboBoxCex->setEnabled(false);
 }
 
 void DialogNew::writeRcp()
